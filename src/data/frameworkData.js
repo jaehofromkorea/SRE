@@ -6015,13 +6015,13 @@ jobs:
   with:
     payload: |
       {
-        "text": "❌ Deployment failed for ${{ github.repository }}",
+        "text": "❌ Deployment failed for \${{ github.repository }}",
         "blocks": [
           {
             "type": "section",
             "text": {
               "type": "mrkdwn",
-              "text": "Commit: ${{ github.sha }}\\nAuthor: ${{ github.actor }}"
+              "text": "Commit: \${{ github.sha }}\\nAuthor: \${{ github.actor }}"
             }
           }
         ]
@@ -6263,7 +6263,7 @@ jobs:
             git pull origin main
             npm install
             npm run build
-            echo "${{ github.sha }}" > VERSION
+            echo "\${{ github.sha }}" > VERSION
             pm2 restart myapp
           EOF
 
@@ -6298,13 +6298,13 @@ jobs:
         with:
           payload: |
             {
-              "text": "${{ job.status == 'success' && '✅' || '❌' }} Deployment ${{ job.status }}",
+              "text": "\${{ job.status == 'success' && '✅' || '❌' }} Deployment \${{ job.status }}",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "Commit: ${{ github.sha }}\\nHealth: ${{ steps.health.outputs.healthy }}"
+                    "text": "Commit: \${{ github.sha }}\\nHealth: \${{ steps.health.outputs.healthy }}"
                   }
                 }
               ]
@@ -6682,9 +6682,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build image
-        run: docker build -t myapp:${{ github.sha }} .
+        run: docker build -t myapp:\${{ github.sha }} .
       - name: Push image
-        run: docker push myapp:${{ github.sha }}
+        run: docker push myapp:\${{ github.sha }}
 
   request-approval:
     needs: build
@@ -6693,15 +6693,15 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v5
         with:
-          title: "Deploy ${{ github.sha }} to production"
+          title: "Deploy \${{ github.sha }} to production"
           body: |
             ## Deployment Request
-            - Commit: ${{ github.sha }}
-            - Author: ${{ github.actor }}
+            - Commit: \${{ github.sha }}
+            - Author: \${{ github.actor }}
             - Tests: Passed ✅
 
             Please review and approve to deploy to production.
-          branch: deploy/${{ github.sha }}
+          branch: deploy/\${{ github.sha }}
           base: main
 
   deploy-production:
@@ -6715,8 +6715,8 @@ jobs:
         run: |
           git clone https://github.com/myuser/myapp-k8s
           cd myapp-k8s
-          sed -i 's|image: myapp:.*|image: myapp:${{ github.sha }}|' k8s/deployment.yaml
-          git commit -am "Deploy ${{ github.sha }}"
+          sed -i 's|image: myapp:.*|image: myapp:\${{ github.sha }}|' k8s/deployment.yaml
+          git commit -am "Deploy \${{ github.sha }}"
           git push
 
       - name: Wait for ArgoCD sync
