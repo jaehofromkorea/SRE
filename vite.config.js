@@ -18,8 +18,8 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+        scope: '/SRE/',
+        start_url: '/SRE/',
         icons: [
           {
             src: 'pwa-64x64.png',
