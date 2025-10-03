@@ -8770,7 +8770,7 @@ aws route53 change-resource-record-sets \\
         "Name": "app.example.com",
         "Type": "A",
         "TTL": 60,
-        "ResourceRecords": [{"Value": "'$(dig +short ${DR_SERVER})'"}]
+        "ResourceRecords": [{"Value": "'$(dig +short \${DR_SERVER})'"}]
       }
     }]
   }'
