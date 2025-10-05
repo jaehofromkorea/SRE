@@ -36,16 +36,25 @@ export default function TextSelection({ isActive, onTextSelected }) {
       }, 10);
     };
 
+    // 하이라이터 모드에서 브라우저 기본 컨텍스트 메뉴 차단
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+
     // 마우스 이벤트 리스너 등록
     document.addEventListener('mouseup', handleMouseUp);
 
     // 터치 이벤트도 지원 (모바일)
     document.addEventListener('touchend', handleMouseUp);
 
+    // 컨텍스트 메뉴 차단
+    document.addEventListener('contextmenu', handleContextMenu);
+
     // 클린업
     return () => {
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('touchend', handleMouseUp);
+      document.removeEventListener('contextmenu', handleContextMenu);
     };
   }, [isActive, onTextSelected]);
 
