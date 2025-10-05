@@ -79,6 +79,11 @@ export default function ActionMenu({
 
   if (!selectedText || !selectionRect) return null;
 
+  // 텍스트 미리보기 (50자 제한)
+  const previewText = selectedText.length > 50
+    ? selectedText.substring(0, 50) + '...'
+    : selectedText;
+
   return (
     <>
       {/* 배경 클릭 시 닫기 */}
@@ -97,6 +102,12 @@ export default function ActionMenu({
           left: x ?? 0,
         }}
       >
+        {/* 선택된 텍스트 미리보기 */}
+        <div className="px-3 py-2 border-b border-gray-200 bg-gray-50">
+          <p className="text-xs text-gray-500 mb-1">선택된 텍스트</p>
+          <p className="text-sm text-gray-800 leading-snug">{previewText}</p>
+        </div>
+
         {/* 버튼들 */}
         <div className="flex items-center gap-1 p-2">
           <button

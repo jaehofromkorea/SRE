@@ -40,10 +40,21 @@ export default function TextSelection({ isActive, onTextSelected }) {
           return;
         }
 
+        // 선택 정보를 저장한 후 즉시 선택 해제
+        // 이렇게 하면 안드로이드 Chrome의 Smart Text Selection이 트리거되지 않음
         onTextSelected({
           text,
           rect  // Floating UI에서 사용할 DOMRect 전달
         });
+
+        // 선택 해제 (구글 검색 제안 차단)
+        setTimeout(() => {
+          const selection = window.getSelection();
+          if (selection) {
+            selection.removeAllRanges();
+          }
+          console.log('[TextSelection] Selection cleared to prevent Smart Text Selection');
+        }, 50);
       }, 100);
     };
 
