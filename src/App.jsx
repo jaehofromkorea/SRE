@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react'
 import { frameworkData } from './data/frameworkData'
+import HighlighterButton from './components/HighlighterButton'
+import TextSelection from './components/TextSelection'
+import ActionMenu from './components/ActionMenu'
+import Toast from './components/Toast'
+import MemoModal from './components/MemoModal'
+import { useNotes } from './hooks/useNotes'
 import './App.css'
 
 // Icon components
@@ -63,6 +69,14 @@ function App() {
   const [expandedTopics, setExpandedTopics] = useState({});
   const [completedTasks, setCompletedTasks] = useState({});
   const [activeLevel, setActiveLevel] = useState({});
+  const [isHighlighterMode, setIsHighlighterMode] = useState(false);
+  const [selectedTextData, setSelectedTextData] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [isMemoModalOpen, setIsMemoModalOpen] = useState(false);
+  const [memoTargetText, setMemoTargetText] = useState('');
+
+  // 노트 관리 Hook
+  const { addHighlight, addMemo } = useNotes();
 
   // localStorage에서 진도 불러오기
   useEffect(() => {
@@ -146,6 +160,49 @@ function App() {
 
   const getTotalHours = (tier) => {
     return tier.topics.reduce((sum, topic) => sum + (topic.hours || 0), 0);
+  };
+
+  // 텍스트 선택 핸들러
+  const handleTextSelected = (data) => {
+    setSelectedTextData(data);
+  };
+
+  // 토스트 표시 헬퍼
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
+
+  // 액션 핸들러들
+  const handleImportant = (text) => {
+    const id = addHighlight(text);
+    showToast('중요! 표시로 저장되었습니다');
+    console.log('하이라이트 추가됨:', id);
+  };
+
+  const handleMemo = (text) => {
+    setMemoTargetText(text);
+    setIsMemoModalOpen(true);
+  };
+
+  const handleMemoSave = (memoData) => {
+    const id = addMemo(memoData.text, memoData.category, memoData.memo);
+    showToast('메모가 저장되었습니다');
+    console.log('메모 추가됨:', id);
+  };
+
+  const handleSearch = (text) => {
+    const query = encodeURIComponent(text);
+    window.open(`https://www.google.com/search?q=${query}`, '_blank');
+  };
+
+  const handleCopy = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('클립보드에 복사되었습니다');
+    } catch (err) {
+      console.error('복사 실패:', err);
+      showToast('복사에 실패했습니다', 'error');
+    }
   };
 
   // Content 렌더링 함수
@@ -444,6 +501,47 @@ function App() {
           </p>
         </div>
       </div>
+
+      {/* 하이라이터 플로팅 버튼 */}
+      <HighlighterButton
+        isActive={isHighlighterMode}
+        onToggle={() => setIsHighlighterMode(!isHighlighterMode)}
+      />
+
+      {/* 텍스트 선택 감지 */}
+      <TextSelection
+        isActive={isHighlighterMode}
+        onTextSelected={handleTextSelected}
+      />
+
+      {/* 액션 메뉴 */}
+      <ActionMenu
+        selectedText={selectedTextData?.text}
+        position={selectedTextData?.position}
+        onImportant={handleImportant}
+        onMemo={handleMemo}
+        onSearch={handleSearch}
+        onCopy={handleCopy}
+        onClose={() => setSelectedTextData(null)}
+      />
+
+      {/* 메모 모달 */}
+      {isMemoModalOpen && (
+        <MemoModal
+          selectedText={memoTargetText}
+          onSave={handleMemoSave}
+          onClose={() => setIsMemoModalOpen(false)}
+        />
+      )}
+
+      {/* 토스트 알림 */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
