@@ -75,6 +75,13 @@ function App() {
   const [isMemoModalOpen, setIsMemoModalOpen] = useState(false);
   const [memoTargetText, setMemoTargetText] = useState('');
 
+  // 하이라이터 모드 종료 시 메뉴 닫기
+  useEffect(() => {
+    if (!isHighlighterMode) {
+      setSelectedTextData(null);
+    }
+  }, [isHighlighterMode]);
+
   // 노트 관리 Hook
   const { addHighlight, addMemo } = useNotes();
 
@@ -517,7 +524,7 @@ function App() {
       {/* 액션 메뉴 */}
       <ActionMenu
         selectedText={selectedTextData?.text}
-        position={selectedTextData?.position}
+        selectionRect={selectedTextData?.rect}
         onImportant={handleImportant}
         onMemo={handleMemo}
         onSearch={handleSearch}

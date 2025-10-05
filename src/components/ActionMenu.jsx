@@ -1,3 +1,6 @@
+import { useFloating, offset, flip, shift, autoUpdate } from '@floating-ui/react-dom';
+import { useEffect, useMemo } from 'react';
+
 /**
  * 액션 메뉴 아이콘들
  */
@@ -34,20 +37,47 @@ const CopyIcon = () => (
 );
 
 /**
- * 액션 메뉴 컴포넌트
+ * 액션 메뉴 컴포넌트 (Floating UI 사용)
  */
 export default function ActionMenu({
   selectedText,
-  position,
+  selectionRect,
   onImportant,
   onMemo,
   onSearch,
   onCopy,
   onClose
 }) {
-  if (!selectedText || !position) return null;
+  // Virtual element: DOMRect를 Floating UI가 인식할 수 있는 형태로 변환
+  const virtualElement = useMemo(() => {
+    if (!selectionRect) return null;
 
-  const { x, y, placement } = position;
+    return {
+      getBoundingClientRect: () => selectionRect
+    };
+  }, [selectionRect]);
+
+  const { x, y, strategy, refs, update } = useFloating({
+    elements: {
+      reference: virtualElement
+    },
+    placement: 'top',
+    middleware: [
+      offset(10),  // 선택 영역과 10px 간격
+      flip(),      // 화면 밖으로 나가면 자동으로 반대편에 표시
+      shift({ padding: 8 })  // 좌우 여백 확보
+    ],
+    whileElementsMounted: autoUpdate  // 스크롤/리사이즈 시 자동 업데이트
+  });
+
+  // selectionRect가 변경될 때마다 위치 업데이트
+  useEffect(() => {
+    if (update) {
+      update();
+    }
+  }, [selectionRect, update]);
+
+  if (!selectedText || !selectionRect) return null;
 
   return (
     <>
@@ -59,25 +89,14 @@ export default function ActionMenu({
 
       {/* 액션 메뉴 */}
       <div
-        className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 animate-fade-in"
+        ref={refs.setFloating}
+        className="z-50 bg-white rounded-lg shadow-xl border border-gray-200 animate-fade-in"
         style={{
-          left: `${x}px`,
-          top: `${y}px`,
-          transform: 'translateX(-50%)'
+          position: strategy,
+          top: y ?? 0,
+          left: x ?? 0,
         }}
       >
-        {/* 화살표 표시 (선택사항) */}
-        {placement === 'top' && (
-          <div className="absolute left-1/2 -bottom-2 w-0 h-0 border-l-8 border-r-8 border-t-8
-                          border-l-transparent border-r-transparent border-t-white
-                          transform -translate-x-1/2" />
-        )}
-        {placement === 'bottom' && (
-          <div className="absolute left-1/2 -top-2 w-0 h-0 border-l-8 border-r-8 border-b-8
-                          border-l-transparent border-r-transparent border-b-white
-                          transform -translate-x-1/2" />
-        )}
-
         {/* 버튼들 */}
         <div className="flex items-center gap-1 p-2">
           <button

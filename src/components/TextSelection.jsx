@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react';
 import {
   getSelectedText,
-  getSelectionBoundingRect,
-  calculateMenuPosition
+  getSelectionBoundingRect
 } from '../utils/textSelection';
 
 /**
@@ -21,11 +20,11 @@ export default function TextSelection({ isActive, onTextSelected }) {
         clearTimeout(selectionTimeoutRef.current);
       }
 
-      // 모바일에서 선택이 완료될 시간 확보 (150ms로 증가)
+      // 선택이 완료될 시간 확보
       selectionTimeoutRef.current = setTimeout(() => {
         const text = getSelectedText();
 
-        console.log('[TextSelection] Selected text:', text); // 디버깅
+        console.log('[TextSelection] Selected text:', text);
 
         // 텍스트가 선택되지 않았거나 너무 짧으면 무시
         if (!text || text.length < 2) {
@@ -34,26 +33,18 @@ export default function TextSelection({ isActive, onTextSelected }) {
         }
 
         const rect = getSelectionBoundingRect();
-        console.log('[TextSelection] Selection rect:', rect); // 디버깅
+        console.log('[TextSelection] Selection rect:', rect);
 
         if (!rect) {
           console.log('[TextSelection] No bounding rect');
           return;
         }
 
-        const position = calculateMenuPosition(rect);
-        console.log('[TextSelection] Menu position:', position); // 디버깅
-
-        if (!position) {
-          console.log('[TextSelection] Failed to calculate position');
-          return;
-        }
-
         onTextSelected({
           text,
-          position
+          rect  // Floating UI에서 사용할 DOMRect 전달
         });
-      }, 150);
+      }, 100);
     };
 
     // 하이라이터 모드에서 브라우저 기본 컨텍스트 메뉴 차단
@@ -67,23 +58,11 @@ export default function TextSelection({ isActive, onTextSelected }) {
       handleSelection();
     };
 
-    // selectionchange 이벤트로 텍스트 선택 감지 (모바일 지원 개선)
-    const handleSelectionChange = () => {
-      const selection = window.getSelection();
-      if (selection && selection.toString().trim().length > 0) {
-        console.log('[TextSelection] Selection changed:', selection.toString());
-        handleSelection();
-      }
-    };
-
-    // 마우스 이벤트 리스너 등록
+    // 마우스 이벤트 리스너 등록 (PC)
     document.addEventListener('mouseup', handleMouseUp);
 
-    // 터치 이벤트도 지원 (모바일)
+    // 터치 이벤트 지원 (모바일)
     document.addEventListener('touchend', handleMouseUp);
-
-    // 선택 변경 이벤트 (모바일에서 더 안정적)
-    document.addEventListener('selectionchange', handleSelectionChange);
 
     // 컨텍스트 메뉴 차단
     document.addEventListener('contextmenu', handleContextMenu);
@@ -95,7 +74,6 @@ export default function TextSelection({ isActive, onTextSelected }) {
       }
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('touchend', handleMouseUp);
-      document.removeEventListener('selectionchange', handleSelectionChange);
       document.removeEventListener('contextmenu', handleContextMenu);
     };
   }, [isActive, onTextSelected]);
